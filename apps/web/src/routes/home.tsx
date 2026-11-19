@@ -1,4 +1,4 @@
-import { Hero, Services, Portfolio, About, Journal, Contact, Newsletter, SignalDemo } from '@/components/home/studio';
+import { Hero, Services, Portfolio, About, Contact, Newsletter, SignalDemo } from '@/components/home/studio';
 
 export function meta() {
 	return [
@@ -9,5 +9,5 @@ export function meta() {
 }
 
 export default function HomePage() {
-	return <main><Hero/><Portfolio/><Services/><About/><Journal/><Contact/><Newsletter/></main>;
+	return <main><Hero/><Portfolio/><Services/><About/><Contact/><Newsletter/></main>;
 }

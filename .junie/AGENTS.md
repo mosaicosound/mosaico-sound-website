@@ -101,61 +101,105 @@ horizons-export/
 
 ## Design Decisions & Current State (as of 2026-11-19)
 
-### Overall Aesthetic: Lottery Ticket Scratch-Off Effect
-- **Core concept**: User wants the website to feel like a scratched lottery ticket — letters coming to life as if revealed by scratching with a metal coin, with ink textures, scratch marks, and messy imperfections throughout.
-- **Ink color**: Darkened to `#0a0a0c` (deeper black) for richer contrast, with `--ink-light: #141418` as a secondary dark tone.
-- **Paper color**: Warmed to `#e8e6e1` for an aged paper feel.
-- **Pure CSS implementation**: All scratch effects use layered gradients, pseudo-elements (`::before`, `::after`), and text shadows — no JavaScript or external libraries needed, well within Hostinger Premium limits.
+### Overall Aesthetic: Scratch-Off Lottery Ticket + Chinese Ink Brush
+- **Core concept**: The website combines two visual languages:
+  1. **Scratch-off lottery ticket**: Letters coming to life as if revealed by scratching with a metal coin, with ink textures, scratch marks, and messy imperfections.
+  2. **Chinese ink brush strokes**: All dividers and button underlines use flowing multicolor ink gradients with organic irregular edges, like a brush stroke in calligraphy.
+- **Ink color**: `#0a0a0c` (deep black) with `--ink-light: #141418` as secondary dark tone.
+- **Paper color**: `#e8e6e1` (aged paper).
+- **Pure CSS implementation**: All effects use layered gradients, pseudo-elements, and text shadows — no JavaScript or external libraries for styling, well within Hostinger Premium limits.
 
 ### Background Texture (body::before)
 - A fixed overlay covers the entire viewport with:
-  - Fine horizontal scratch marks (repeating gradient every 2-3px)
-  - Fine vertical scratch marks (repeating gradient every 3-4px)
-  - Random diagonal scratch lines at various angles (45°, -30°, 70°, -60°, 15°)
-  - Ink noise texture (radial gradients at different positions)
-- Content elements (`.site-header`, `.hero`, `.section`, `.newsletter`, `footer`) sit above this texture via `position: relative; z-index: 1;`
+  - **SVG noise texture**: `feTurbulence` filter (baseFrequency 0.85, 4 octaves) for authentic newspaper grain at 12% opacity.
+  - **Rust stains**: 6 organic radial gradient patches (brown/amber tones, 14-22% opacity).
+  - **Paper fiber lines**: Very subtle repeating gradients (0.008 opacity horizontal, 0.005 opacity vertical).
+  - **Ink splatter dots**: 7 tiny radial gradients (4-6% opacity) scattered across the surface.
+- Content elements (`.site-header`, `.hero`, `.section`, `.newsletter`, `footer`) sit above via `position: relative; z-index: 1;`
 
-### Typography (Fully Consistent Handwritten Style)
-- **Font choice**: Architects Daughter (Google Fonts, free) — technical sketch-pen style, like notes written with a fine-tip pen on a Remarkable tablet
-- **Applied to**: EVERYTHING on the site — body text, h1, h2, h3, .brand, navigation, buttons, section labels, .mono text, service numbers, portfolio categories, journal details, contact info, form labels and inputs, newsletter, footer, cookies dialog, empty state
-- **Inter font**: Still loaded as fallback in CSS variables but no longer used as the primary font
-- **CSS variables**: `--font-handwritten: 'Architects Daughter', cursive` and `--font-sans: 'Inter', Arial, Helvetica, sans-serif`
-- **Font loaded via**: `root.tsx` Google Fonts link in the `<head>` (not via @import in CSS, which doesn't work with Vite)
-- **Design rationale**: User wanted "elegance + handwritten in a sketch pen line type of way... like the remarkable paper tablet feels like." Architects Daughter was chosen over Caveat (too casual), Kalam (too calligraphic), and Dancing Script (too formal) for its technical yet hand-drawn quality.
-- **Text styling**: Removed uppercase text-transform and tight letter-spacing from labels and captions — they clash with handwritten style. Font sizes adjusted slightly larger to compensate for the handwritten feel.
-- **Body paragraphs**: Also use Architects Daughter (not Inter) for complete consistency — the entire site feels like one notebook
+### Typography — Unified Cormorant Garamond (Pearl Serif)
+- **Font choice**: **Cormorant Garamond** (Google Fonts, free) — elegant pearl serif, light italic.
+- **Applied to**: EVERYTHING on the site — body text, h1, h2, h3, `.brand`, navigation, buttons, section labels, `.mono` text, service numbers, portfolio categories, journal details, contact info, form labels and inputs, newsletter, footer, cookies dialog, empty state.
+- **CSS variable**: `--font-pearl: 'Cormorant Garamond', Georgia, serif`
+- **Font loaded via**: `root.tsx` Google Fonts link in `<head>` (not via @import in CSS, which doesn't work with Vite).
+- **Key styling**:
+  - `h1`: `clamp(68px, 10vw, 155px)`, weight 300, italic, letter-spacing 0.02em, max-width 900px.
+  - `h2`: `clamp(40px, 5vw, 72px)`, weight 300, italic, letter-spacing 0.02em.
+  - `h3`: 32px, weight 300, italic, letter-spacing 0.02em.
+  - `.brand`: 30px, weight 300.
+  - Body paragraphs: weight 300, line-height 1.8-1.9.
+  - Labels/captions: 11-13px, weight 300-400, no uppercase transform.
+- **Design evolution**: Started with Architects Daughter (handwritten) → user wanted elegance → Cormorant Garamond Light Italic for hero → then unified everything to Cormorant Garamond for consistency. Architects Daughter was tried but ultimately replaced.
 
-### Ink Bleed & Scratch Marks on Headings
-- **h1 text-shadow**: `0 0 1px rgba(232,230,225,0.3), 1px 1px 2px rgba(0,0,0,0.5), -1px -1px 1px rgba(255,255,255,0.05)` — letters look freshly scratched
-- **h2 text-shadow**: `0 0 1px rgba(232,230,225,0.25), 1px 1px 2px rgba(0,0,0,0.4)` — ink bleed on section headings
-- **em text-shadow**: `0 0 2px rgba(232,230,225,0.2), 2px 1px 3px rgba(0,0,0,0.4)` — ink scratch effect on colored text
-- **h1::after, h2::after**: Scratch marks and ink splatter dots around headings via pseudo-elements with radial gradients simulating coin scratches
+### Hero Section — "Sonic Artistry Across Mediums"
+- **Headline**: `Sonic Artistry<br/><em>Across</em> <em>Mediums</em>`
+- **"Sonic Artistry"** (plain text): Pearl shimmer effect — slow 8s gradient animation with soft iridescent colors (white, cool blue, warm pink) and subtle text-shadow glow.
+- **"Across Mediums"** (`<em>` tags): **Ripple-lake animation** — 6s cycle:
+  - 0-15%: Pearl calm (desaturated, soft white/gray)
+  - 15-25%: Rock touches water (color begins to bloom)
+  - 25-50%: Multicolor ripple expands (full vibrant pastel colors)
+  - 50-75%: Ripple fades (colors drain away)
+  - 75-100%: Pearl calm returns
+  - Uses `filter: saturate()` from 0.05 to 1.0 + `brightness()` from 1 to 1.15.
+- **"mosaico sound"** in header/footer: Simple static `var(--accent-gradient)` — **untouched by ripple animation**.
+- **`em` CSS**: `var(--accent-gradient)` with text clipping, `padding: 0 4px`, `overflow: visible`.
+- **`h1 em` CSS**: `var(--accent-gradient-animate)` with `@keyframes ripple-lake` (6s cycle).
 
-### Rough Hand-Drawn Borders (replacing all clean borders)
-- **All clean borders replaced** with rough scratch-line borders using `::before` pseudo-elements
-- **Elements with scratch borders**: `.site-header`, `.nav-contact`, `.primary` button, `.chips button`, `.service` dividers, `.hero-caption`, `.signal-button`, `.section` dividers, `.empty` state, form inputs, footer, newsletter, audio projects, cookies dialog
-- **Border technique**: Layered gradients simulating imperfect hand-drawn lines with slightly uneven corners (`border-radius: 2px 1px 3px 2px`)
-- **Hover states**: Scratch borders fade to lower opacity on hover, revealing gradient text underneath
+### DAW Session Sketch (SonicScene Component)
+- **Location**: `apps/web/src/components/home/studio.tsx` — `SonicScene` component.
+- **Visual**: 3 thin waveform tracks drawn on a 2D canvas, each with a unique pastel color (purple, blue, green).
+- **Playhead**: Thin vertical line that sweeps left-to-right synced with the 6s ripple cycle.
+  - Follows `Math.sin(cycleT * Math.PI)` curve — slow, light-like movement.
+  - Very subtle glow (40px width, 4% max opacity).
+  - Playhead line: 0.5px, 25% max opacity.
+- **Positioning**: Centered behind the hero text at 45% width, 140px height, 35% opacity.
+- **Mobile**: 70% width, 100px height, 25% opacity.
+- **CSS class**: `.sonic-scene` — absolute positioned, pointer-events none, z-index 0.
+- **Design rationale**: User wanted a small, subtle DAW session sketch to signal "recording" without overwhelming the hero. Started as full-background, reduced to 5 tracks, then 3 tracks, finally positioned as a small centered window behind the text.
 
-### Ink Splatter Details
-- **`.primary::after`**: Tiny ink splatter dot near the primary button
-- **Heading scratch marks**: Random scratch lines above and below h1/h2, plus ink splatter dots at various positions
+### Multicolor Splashes (Hero + Section Transitions)
+- **Hero background** (`.hero::before`): 7 radial gradient splashes (purple, blue, green, amber, pink, violet, teal) at 12-25% opacity.
+- **Splash pulse animation**: 6s cycle synced with ripple — opacity 0.08 to 0.25, saturate 0.1 to 0.7.
+- **Section transitions** (`.section::before`): 3 faint splash accents (purple, blue, amber) at 8-12% opacity, same 6s pulse.
+- **Reduced glows**: User requested less glow overall — splash base opacity reduced from 0.6 to 0.2, max pulse from 0.7 to 0.25.
 
-### Hero Section
-- **Headline**: "Sonic Artistry<br/><em>Across</em> <em>Mediums</em>" (changed from "Sound that makes you feel")
-- **Both "Across" and "Mediums"** use `<em>` tags for the multicolor gradient effect
-- **"mosaico sound"** in header (`root.tsx`) and footer (`studio.tsx`) uses `<em>` tags for the same gradient effect
-- **`em` CSS**: Simple `var(--accent-gradient)` with text clipping, `padding: 0 4px`, `overflow: visible` to prevent cut-off letters
+### Chinese Ink Brush Stroke Dividers
+- **All dividers** use the same flowing multicolor ink gradient with organic irregular edges:
+  - Header bottom (`.site-header::after`)
+  - Hero caption top (`.hero-caption::before`)
+  - Signal button bottom (`.signal-button::after`)
+  - Section bottom (`.section::after`)
+  - Form inputs (`.input::after`, `.select::after`, `.textarea::after`)
+  - Newsletter bottom (`.newsletter::after`)
+  - Footer top (`footer::before`)
+  - Audio project dividers (`.audio-project::before`)
+- **Technique**: `linear-gradient(90deg)` with 7 color stops (purple → blue → green → amber → pink → purple → transparent), `border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%`, `filter: blur(0.5px)`.
+- **Focus state**: Inputs increase opacity on focus (0.3 → 0.6).
+
+### Button Design — Clean with Chinese Ink Underline
+- **All buttons** (`.nav-contact`, `.primary`, `.chips button`): Transparent background, no borders.
+- **Hover effect**: Multicolor gradient text + Chinese ink brush underline (`::after`).
+- **Underline**: 3px height, positioned 4px below text, fades in over 0.4s.
+- **Design evolution**: Started with sketchy borders → coffee-stain splashes → Chinese ink blob → thin underline. User wanted the thin underline beneath the text.
 
 ### Gradient Styling
-- **Current gradient**: Soft pastel colors — `linear-gradient(90deg, #c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa)`
-- **`--accent-color`**: `#c9a0dc` (soft periwinkle)
-- **Consistency decision**: User requested all multicolor elements use the same simple gradient for visual consistency. The complex stained glass mosaic effect (36-shard watercolor) was reverted to the simple `var(--accent-gradient)` on the `em` selector.
-- **Gradient applies to**: Hero text ("Across Mediums"), header/footer branding ("mosaico sound"), section labels (`.section-label`), link hovers (`a:hover`), nav contact button, chip buttons when active, contact mono text, empty state SVG, and form focus states.
+- **`--accent-gradient`**: `linear-gradient(90deg, #c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa)`
+- **`--accent-gradient-animate`**: Same + `#c9a0dc` at end for seamless loop.
+- **`--accent-color`**: `#c9a0dc` (soft periwinkle).
+- **Applies to**: Hero text, header/footer branding, section labels, link hovers, nav contact button, chip buttons, contact mono text, empty state SVG, form focus states, service hover reveal.
+
+### Scratch Marks & Ink Effects
+- **h1::after, h2::after**: Scratch lines and ink splatter dots around headings via pseudo-elements.
+- **Service dividers**: Rough scratched lines with gradient hover reveal (`.service::before`, `.service::after`).
+- **Contact section**: SVG noise texture overlay + rust stain (`.contact::before`).
+- **Journal accordion**: Scratched vertical line beside text (`details.service p::before`).
+- **Contact items**: Scratched dividers above each item (`.contact-item::before`).
+- **Empty state**: Rough scratched border (`.empty::before`).
+- **Cookies dialog**: Rough scratched border (`.cookies::before`).
 
 ### "feel" Word Animations (PAUSED)
 - **4 effects implemented**: Shiver, Explode, Font Change, Typewriter
-- **CSS location**: `apps/web/src/index.css` — lines 130-279
+- **CSS location**: `apps/web/src/index.css` — lines 425-574
 - **JavaScript sequencer**: `apps/web/src/components/home/studio.tsx` — `useFeelSequencer` hook with `FEEL_EFFECTS` config array
 - **Current state**: **PAUSED** — `useFeelSequencer(feelRef)` is commented out in the `Hero` component with a TODO note
 - **To re-enable**: Uncomment the line `// useFeelSequencer(feelRef);` in the `Hero` component
@@ -167,25 +211,41 @@ horizons-export/
 - **Mobile adjustments**: Separate keyframes for shiver and explode on screens < 760px
 - **Reduced motion**: All animations disabled via `@media (prefers-reduced-motion: reduce)`
 
+### Page Layout Order (home.tsx)
+- **Current order**: Hero → Portfolio → Services → About → Journal → Contact → Newsletter
+- **Portfolio moved**: User requested "02 / Listen closely" (Portfolio) to appear immediately after the Hero section.
+
 ### Color Palette Evolution
 - Started with vibrant rainbow (ruby, amber, teal, cobalt, purple, magenta)
 - Explored stained glass mosaic effects (12-shard cathedral, 36-shard watercolor)
 - Tried deep sea cathedral palette, opaque pastels, uneven color splashes
-- **Final decision**: User prefers simple consistent gradient across all elements with soft pastel colors
+- **Final decision**: Soft pastel gradient (#c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa) applied consistently everywhere
 
-### Header Animated Lines
-- Multicolor shimmer lines on header bottom border and section dividers
-- Uses the same pastel color palette as the gradient
-- Shimmer lines now have a scratch mark base layer plus animated color overlay
+### Header Animated Shimmer Lines
+- Two animated gradient lines sweep across the header bottom and section dividers.
+- Uses the same pastel color palette, 14s and 18s animation durations.
+- Base scratch mark layer + animated color overlay.
+
+## Copy Management System (copy.ts)
+- **File**: `apps/web/src/copy.ts` — **ALL website text is centralized here.**
+- **How it works**: Every component imports `siteCopy` from `@/copy` and reads text from it instead of hardcoding strings.
+- **How to edit**: Open `copy.ts`, find the section you want to change (clearly labeled with comments), and edit the text inside the quotes. Save and the site updates.
+- **Structure**: `siteCopy` object has properties for each section: `header`, `hero`, `services`, `portfolio`, `about`, `journal`, `contact`, `newsletter`, `footer`, `cookies`, `signal`.
+- **Adding projects**: Edit `siteCopy.portfolio.projects` array — copy an existing project block and change the values.
+- **Adding journal articles**: Edit `siteCopy.journal.articles` array — copy an existing article block and change the values.
+- **Line breaks**: Use `\n` inside strings for line breaks (e.g., `"Line one.\nLine two."`).
+- **Do NOT edit text in `studio.tsx` or `root.tsx`** — all text should come from `copy.ts`.
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **GitHub + GitHub Actions are fully set up and working** — just push to `master` and the `build` branch is auto-updated
-- **Hostinger-Git connection**: User confirmed deployment is complete and working as of 2026-11-19
-- User may want to **experiment with the "feel" animations** — they are paused for now, ready to be re-enabled
-- **Current aesthetic direction**: Lottery ticket scratch-off effect with ink textures, scratch marks, and messy imperfections. User wants more messiness and scratch effects — "see those letters come to life like the effect when you scratch a lottery ticket with a metal coin."
-- **Typography direction**: Architects Daughter handwritten font applied to everything. User wants "elegance + handwritten in a sketch pen line type of way... like the remarkable paper tablet feels like."
-- **Styling areas still to refine**: Services section, Portfolio section, About section, Contact section, Footer & Newsletter — user selected "Overall Typography" first, then moved to scratch-off effects. Other sections may need similar treatment.
+- **GitHub + GitHub Actions are fully set up and working** — push to `master`, `build` branch auto-updates, Hostinger auto-deploys
+- **Hostinger-Git connection**: ✅ Confirmed working as of 2026-11-19
+- User may want to **experiment with the "feel" animations** — paused for now, ready to re-enable
+- **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
+- **Typography**: Cormorant Garamond unified everywhere. User rejected Architects Daughter (too casual) in favor of elegant serif.
+- **Ripple animation**: 6s cycle is the heartbeat of the hero — text, DAW playhead, and splashes all sync to this rhythm.
+- **Glow levels**: User prefers darker, more matte look with patches of pitch black. All glows are reduced (splashes at 0.08-0.25 opacity, minimal text shadows).
+- **DAW sketch**: Small, subtle, centered behind text — signals "recording" without dominating.
 - Website copy documents are saved at:
   - `Website Copy - Simple.txt`
   - `Website Copy - Edit This.html`

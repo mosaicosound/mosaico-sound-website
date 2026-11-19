@@ -17,4 +17,3 @@ declare module 'virtual:horizons-runtime';
 declare module 'virtual:horizons-edit-mode';
 declare module 'virtual:horizons-iframe-route-restoration';
 declare module 'virtual:horizons-pocketbase-auth';
-declare module 'virtual:session-journal-client';

@@ -9,6 +9,7 @@ import {
 import type { Route } from './+types/root';
 import stylesheet from '@/index.css?url';
 import { Footer, Cookies } from '@/components/home/studio';
+import { siteCopy } from '@/copy';
 
 export const links: Route.LinksFunction = () => [
 	{ rel: 'stylesheet', href: stylesheet, precedence: 'default' },
@@ -38,13 +39,12 @@ export default function App() {
 				<div id="root">
 					<header className="site-header">
 						<div className="header-lines"></div>
-      <a className="brand" href="/"><em>mosaico sound</em><span>®</span></a>
+      <a className="brand" href="/"><em>{siteCopy.header.brand}</em><span>®</span></a>
 						<nav aria-label="Main navigation">
-							<a href="/#work">Work</a>
-							<a href="/#services">Services</a>
-							<a href="/#about">About</a>
-							<a href="/#journal">Notes</a>
-							<a className="nav-contact" href="/#contact">Let's talk ↗</a>
+							<a href="/#work">{siteCopy.header.nav.work}</a>
+							<a href="/#services">{siteCopy.header.nav.services}</a>
+							<a href="/#about">{siteCopy.header.nav.about}</a>
+							<a className="nav-contact" href="/#contact">{siteCopy.header.nav.contact}</a>
 						</nav>
 					</header>
 					<Outlet />

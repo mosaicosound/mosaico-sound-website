@@ -1,5 +1,5 @@
 {
-  "name": "sonic-artisan-static",
+  "name": "mosaico-sound",
   "type": "module",
   "version": "0.0.0",
   "private": true,
@@ -11,9 +11,7 @@
     "lint": "npm run lint --prefix apps/web",
     "typecheck": "npm run typecheck --prefix apps/web"
   },
-  "devDependencies": {
-    "knip": "^6.32.1"
-  },
+  "devDependencies": {},
   "workspaces": [
     "apps/web"
   ]
