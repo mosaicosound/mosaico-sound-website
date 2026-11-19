@@ -58,9 +58,11 @@ export function SonicScene() {
 		const group = new THREE.Group();
 		scene.add(group);
 		const materials: THREE.Material[] = [];
+		const baseHues: number[] = [];
 		for (let i = 0; i < 64; i++) {
 			const h = .3 + 2.5 * Math.pow(Math.sin(i * .19), 2) * Math.sin((i / 64) * Math.PI);
 			const hue = (i / 64) * 0.8 + 0.1;
+			baseHues.push(hue % 1);
 			const color = new THREE.Color().setHSL(hue % 1, 0.35, 0.75);
 			const mat = new THREE.MeshStandardMaterial({ color, metalness: .9, roughness: .15 });
 			materials.push(mat);
@@ -90,8 +92,30 @@ export function SonicScene() {
 		resize();
 		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		let frame = 0;
+		// Ripple sync: match the 10s CSS ripple-lake animation cycle
+		// Returns saturation multiplier: 0.05 (pearl) → 1.0 (full color) → 0.05 (pearl)
+		const rippleCycle = (time: number) => {
+			const cycle = 10000; // 10 seconds matching CSS animation
+			const t = (time % cycle) / cycle; // 0 to 1
+			// Mirror sine wave: peaks at 50% (full color), valleys at 0% and 100% (pearl)
+			const saturation = Math.sin(t * Math.PI);
+			// Map to range: 0.05 (pearl calm) to 1.0 (full ripple)
+			return 0.05 + 0.95 * saturation;
+		};
 		const draw = (t: number) => {
-			if (!reduced) group.rotation.y = .45 + Math.sin(t * .0003) * .3;
+			if (!reduced) {
+				group.rotation.y = .45 + Math.sin(t * .0003) * .3;
+				// Sync waveform colors with ripple animation
+				const sat = rippleCycle(t);
+				for (let i = 0; i < materials.length; i++) {
+					const mat = materials[i] as THREE.MeshStandardMaterial;
+					mat.color.setHSL(baseHues[i], sat * 0.35, 0.75);
+				}
+				// Sync lights with ripple too
+				light.intensity = 70 * (0.3 + 0.7 * sat);
+				light2.intensity = 50 * (0.3 + 0.7 * sat);
+				light3.intensity = 40 * (0.3 + 0.7 * sat);
+			}
 			renderer.render(scene, camera);
 			frame = requestAnimationFrame(draw);
 		};
