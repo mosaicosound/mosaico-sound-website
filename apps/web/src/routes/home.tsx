@@ -9,5 +9,5 @@ export function meta() {
 }
 
 export default function HomePage() {
-	return <main><Hero/><SignalDemo/><Services/><Portfolio/><About/><Journal/><Contact/><Newsletter/></main>;
+	return <main><Hero/><Portfolio/><Services/><About/><Journal/><Contact/><Newsletter/></main>;
 }

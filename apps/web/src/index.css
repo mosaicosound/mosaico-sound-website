@@ -18,7 +18,6 @@
   --ink-light: #141418;
   --paper: #e8e6e1;
   --quiet: #8a8b8f;
-  --font-handwritten: 'Architects Daughter', cursive;
   --font-pearl: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Inter', Arial, Helvetica, sans-serif;
 }
@@ -26,12 +25,11 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 90px; }
 
-/* Scratch-off lottery ticket effect: ink texture background with scratch marks */
 body {
   margin: 0;
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--font-handwritten);
+  font-family: var(--font-pearl);
   overflow-x: clip;
   position: relative;
 }
@@ -93,7 +91,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   outline-offset: 5px;
 }
 
-/* Header - rough scratched bottom border */
 .site-header {
   height: 96px;
   padding: 0 5%;
@@ -103,7 +100,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   border-bottom: none;
   position: relative;
 }
-/* Scratched line under header */
+/* Chinese-ink brush stroke under header */
 .site-header::after {
   content: '';
   position: absolute;
@@ -112,10 +109,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   width: 100%;
   height: 2px;
   background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 5%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.1) 95%, transparent 100%),
-    linear-gradient(90deg, transparent 20%, rgba(255,255,255,0.06) 25%, transparent 28%),
-    linear-gradient(90deg, transparent 55%, rgba(255,255,255,0.05) 60%, transparent 63%),
-    linear-gradient(90deg, transparent 80%, rgba(255,255,255,0.07) 85%, transparent 88%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
 }
 .brand { font-family: var(--font-pearl); font-size: 30px; font-weight: 300; letter-spacing: 0.02em; }
 .brand span { font-size: 12px; vertical-align: top; margin-left: 5px; }
@@ -177,34 +182,39 @@ nav { display: flex; gap: 34px; align-items: center; font-size: 14px; font-famil
   font-weight: 300;
   position: relative;
 }
-/* Rough hand-drawn border for nav contact */
-.nav-contact::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    /* Top sketchy line - wavy */
-    linear-gradient(0deg, rgba(255,255,255,0.5) 1px, transparent 1px),
-    linear-gradient(0deg, transparent calc(100% - 1px), rgba(255,255,255,0.5) calc(100% - 1px)),
-    /* Left sketchy line */
-    linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px),
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(255,255,255,0.5) calc(100% - 1px));
-  /* Subtle sketchy corners — thin and close to the button */
-  border-radius: 3px 5px 2px 4px / 4px 2px 5px 3px;
-  pointer-events: none;
-}
 .nav-contact:hover {
   background: var(--accent-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.nav-contact:hover::before {
+/* Chinese-ink brush underline on hover */
+.nav-contact::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  opacity: 0;
+  transition: opacity .4s;
+  pointer-events: none;
   background:
-    linear-gradient(0deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(0deg, transparent calc(100% - 1px), rgba(255,255,255,0.1) calc(100% - 1px)),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(255,255,255,0.1) calc(100% - 1px));
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.7) 10%,
+      rgba(136,170,255,0.6) 25%,
+      rgba(136,255,170,0.5) 40%,
+      rgba(255,204,136,0.6) 55%,
+      rgba(255,136,170,0.5) 70%,
+      rgba(201,160,220,0.4) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.8px);
+}
+.nav-contact:hover::after {
+  opacity: 1;
 }
 
 /* Hero */
@@ -217,8 +227,8 @@ nav { display: flex; gap: 34px; align-items: center; font-size: 14px; font-famil
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
-  animation: splash-pulse 10s ease-in-out infinite;
+  opacity: 0.2;
+  animation: splash-pulse 6s ease-in-out infinite;
   background:
     /* Splash 1 — large purple burst, top-left */
     radial-gradient(ellipse at 15% 20%, rgba(201,160,220,0.25) 0%, transparent 35%),
@@ -238,22 +248,17 @@ nav { display: flex; gap: 34px; align-items: center; font-size: 14px; font-famil
 
 /* Splash pulse — syncs with the 10s ripple-lake animation */
 @keyframes splash-pulse {
-  /* Pearl calm — splashes dim */
-  0%   { opacity: 0.15; filter: saturate(0.1); }
-  15%  { opacity: 0.15; filter: saturate(0.1); }
-  /* Rock touches — splashes begin to glow */
-  25%  { opacity: 0.3; filter: saturate(0.4); }
-  /* Full ripple — splashes bloom bright */
-  35%  { opacity: 0.5; filter: saturate(0.7); }
-  50%  { opacity: 0.7; filter: saturate(1); }
-  /* Ripple fades — splashes dim */
-  65%  { opacity: 0.4; filter: saturate(0.5); }
-  75%  { opacity: 0.2; filter: saturate(0.2); }
-  /* Pearl calm returns */
-  85%  { opacity: 0.15; filter: saturate(0.1); }
-  100% { opacity: 0.15; filter: saturate(0.1); }
+  0%   { opacity: 0.08; filter: saturate(0.1); }
+  15%  { opacity: 0.08; filter: saturate(0.1); }
+  25%  { opacity: 0.15; filter: saturate(0.3); }
+  35%  { opacity: 0.2; filter: saturate(0.5); }
+  50%  { opacity: 0.25; filter: saturate(0.7); }
+  65%  { opacity: 0.15; filter: saturate(0.3); }
+  75%  { opacity: 0.1; filter: saturate(0.15); }
+  85%  { opacity: 0.08; filter: saturate(0.1); }
+  100% { opacity: 0.08; filter: saturate(0.1); }
 }
-.eyebrow, .mono, .section-label, .hero-caption, .signal-button { font-family: var(--font-handwritten); font-size: 11px; letter-spacing: 0; font-weight: 400; }
+.eyebrow, .mono, .section-label, .hero-caption, .signal-button { font-family: var(--font-pearl); font-size: 11px; letter-spacing: 0; font-weight: 400; }
 .eyebrow { display: flex; justify-content: space-between; color: var(--quiet); }
 h1 {
   font-family: var(--font-pearl);
@@ -266,17 +271,10 @@ h1 {
   position: relative;
   z-index: 1;
   max-width: 900px;
-  /* Pearl glow — soft iridescent luminance, like light through a pearl */
+  /* Pearl glow — very subtle, mostly matte */
   color: var(--paper);
   text-shadow:
-    /* Inner pearl glow — soft white halo */
-    0 0 20px rgba(232,230,225,0.15),
-    0 0 40px rgba(232,230,225,0.08),
-    0 0 60px rgba(232,230,225,0.04),
-    /* Subtle iridescent shift — cool blue and warm pink */
-    0 0 30px rgba(136,170,255,0.06),
-    0 0 30px rgba(255,136,170,0.05),
-    /* Delicate ink edge — barely visible definition */
+    0 0 15px rgba(232,230,225,0.06),
     0 1px 2px rgba(0,0,0,0.3);
   /* Pearl shimmer animation — slow light wash across the letters */
   background: linear-gradient(
@@ -328,7 +326,7 @@ h1 em {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: ripple-lake 10s ease-in-out infinite;
+  animation: ripple-lake 6s ease-in-out infinite;
   /* Pearl glow on colored text */
   text-shadow:
     0 0 20px rgba(232,230,225,0.12),
@@ -575,11 +573,22 @@ h1 em .feel-word.feel-typewriter.done {
   }
 }
 
-.sonic-scene { position: absolute; inset: 20px -18% 0 20%; opacity: .65; pointer-events: none; }
+.sonic-scene {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 45%;
+	max-width: 600px;
+	height: 140px;
+	opacity: 0.35;
+	pointer-events: none;
+	z-index: 0;
+}
 .hero-bottom { display: flex; justify-content: space-between; align-items: end; position: relative; z-index: 1; }
 .hero-bottom p { font-size: 15px; line-height: 1.8; color: #c0c1c5; font-weight: 300; }
 
-/* Primary button - rough scratched border, like a hand-drawn box */
+/* Primary button - clean, no border */
 .primary {
   background: transparent;
   color: #ffffff;
@@ -595,35 +604,6 @@ h1 em .feel-word.feel-typewriter.done {
   transition: all .3s;
   position: relative;
 }
-/* Sketchy hand-drawn border effect — irregular wavy lines */
-.primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    /* Top sketchy line */
-    linear-gradient(0deg, rgba(255,255,255,0.5) 1px, transparent 1px),
-    /* Bottom sketchy line */
-    linear-gradient(0deg, transparent calc(100% - 1px), rgba(255,255,255,0.5) calc(100% - 1px)),
-    /* Left sketchy line */
-    linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px),
-    /* Right sketchy line */
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(255,255,255,0.5) calc(100% - 1px));
-  /* Subtle sketchy corners — thin and close to the button */
-  border-radius: 4px 6px 3px 5px / 5px 3px 7px 4px;
-  pointer-events: none;
-}
-/* Ink splatter near button */
-.primary::after {
-  content: '';
-  position: absolute;
-  top: -5px;
-  right: -3px;
-  width: 4px;
-  height: 4px;
-  background: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 2px);
-  border-radius: 50%;
-}
 .primary:hover,
 .primary:hover span {
   background: var(--accent-gradient);
@@ -631,13 +611,33 @@ h1 em .feel-word.feel-typewriter.done {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.primary:hover::before {
+/* Chinese-ink brush underline on hover */
+.primary::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  opacity: 0;
+  transition: opacity .4s;
+  pointer-events: none;
   background:
-    linear-gradient(0deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(0deg, transparent calc(100% - 1px), rgba(255,255,255,0.1) calc(100% - 1px)),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(255,255,255,0.1) calc(100% - 1px));
-  border-radius: 4px 6px 3px 5px / 5px 3px 7px 4px;
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.7) 10%,
+      rgba(136,170,255,0.6) 25%,
+      rgba(136,255,170,0.5) 40%,
+      rgba(255,204,136,0.6) 55%,
+      rgba(255,136,170,0.5) 70%,
+      rgba(201,160,220,0.4) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.8px);
+}
+.primary:hover::after {
+  opacity: 1;
 }
 @keyframes gradientShift {
   0%, 100% { background-position: 0% 50%; }
@@ -653,7 +653,7 @@ h1 em .feel-word.feel-typewriter.done {
   border-top: none;
   color: var(--quiet);
 }
-/* Scratched line above hero caption */
+/* Chinese-ink brush stroke above hero caption */
 .hero-caption::before {
   content: '';
   position: absolute;
@@ -662,9 +662,18 @@ h1 em .feel-word.feel-typewriter.done {
   width: 100%;
   height: 2px;
   background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 5%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.1) 95%, transparent 100%),
-    linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.06) 30%, transparent 33%),
-    linear-gradient(90deg, transparent 65%, rgba(255,255,255,0.05) 70%, transparent 73%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
 }
 .hero-caption a { display: flex; gap: 12px; }
 .signal-button {
@@ -679,7 +688,7 @@ h1 em .feel-word.feel-typewriter.done {
   align-items: center;
   position: relative;
 }
-/* Scratched line under signal button */
+/* Chinese-ink brush stroke under signal button */
 .signal-button::after {
   content: '';
   position: absolute;
@@ -688,8 +697,18 @@ h1 em .feel-word.feel-typewriter.done {
   width: 95%;
   height: 2px;
   background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 5%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.1) 95%, transparent 100%),
-    linear-gradient(90deg, transparent 35%, rgba(255,255,255,0.05) 40%, transparent 43%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
 }
 .signal-button span { margin-left: auto; color: var(--quiet); font-size: 9px; }
 
@@ -710,7 +729,7 @@ h1 em .feel-word.feel-typewriter.done {
   pointer-events: none;
   z-index: 0;
   opacity: 0.3;
-  animation: splash-pulse 10s ease-in-out infinite;
+  animation: splash-pulse 6s ease-in-out infinite;
   background:
     /* Faint purple splash */
     radial-gradient(ellipse at 20% 0%, rgba(201,160,220,0.12) 0%, transparent 50%),
@@ -719,7 +738,7 @@ h1 em .feel-word.feel-typewriter.done {
     /* Faint amber splash */
     radial-gradient(ellipse at 50% 5%, rgba(255,204,136,0.08) 0%, transparent 40%);
 }
-/* Scratched divider under sections */
+/* Chinese-ink brush stroke under sections */
 .section::after {
   content: '';
   position: absolute;
@@ -728,11 +747,18 @@ h1 em .feel-word.feel-typewriter.done {
   width: 90%;
   height: 2px;
   background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 3%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.1) 97%, transparent 100%),
-    linear-gradient(90deg, transparent 10%, rgba(255,255,255,0.06) 15%, transparent 18%),
-    linear-gradient(90deg, transparent 40%, rgba(255,255,255,0.05) 45%, transparent 48%),
-    linear-gradient(90deg, transparent 70%, rgba(255,255,255,0.07) 75%, transparent 78%),
-    linear-gradient(90deg, transparent 90%, rgba(255,255,255,0.04) 93%, transparent 96%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
 }
 
 /* Multicolor section labels */
@@ -819,19 +845,30 @@ h3 { font-family: var(--font-pearl); font-size: 32px; font-weight: 300; font-sty
   transition: all .3s;
   position: relative;
 }
-/* Sketchy hand-drawn border for chips */
-.chips button::before {
+/* Chinese-ink brush underline on chips hover */
+.chips button::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(0deg, rgba(255,255,255,0.4) 1px, transparent 1px),
-    linear-gradient(0deg, transparent calc(100% - 1px), rgba(255,255,255,0.4) calc(100% - 1px)),
-    linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px),
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(255,255,255,0.4) calc(100% - 1px));
-  /* Subtle sketchy corners — thin and close to the button */
-  border-radius: 3px 5px 2px 4px / 4px 2px 5px 3px;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  opacity: 0;
+  transition: opacity .4s;
   pointer-events: none;
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.7) 10%,
+      rgba(136,170,255,0.6) 25%,
+      rgba(136,255,170,0.5) 40%,
+      rgba(255,204,136,0.6) 55%,
+      rgba(255,136,170,0.5) 70%,
+      rgba(201,160,220,0.4) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.8px);
 }
 .chips button[aria-pressed="true"],
 .chips button:hover {
@@ -840,14 +877,9 @@ h3 { font-family: var(--font-pearl); font-size: 32px; font-weight: 300; font-sty
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.chips button[aria-pressed="true"]::before,
-.chips button:hover::before {
-  background:
-    linear-gradient(0deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(0deg, transparent calc(100% - 1px), rgba(255,255,255,0.1) calc(100% - 1px)),
-    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(255,255,255,0.1) calc(100% - 1px));
-  border-radius: 3px 5px 2px 4px / 4px 2px 5px 3px;
+.chips button[aria-pressed="true"]::after,
+.chips button:hover::after {
+  opacity: 1;
 }
 
 /* Empty state - rough scratched border */
@@ -878,8 +910,8 @@ h3 { font-family: var(--font-pearl); font-size: 32px; font-weight: 300; font-sty
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.empty p { color: var(--quiet); line-height: 1.7; font-size: 14px; font-family: var(--font-handwritten); }
-.empty a { display: inline-flex; align-items: center; gap: 12px; margin-top: 20px; font-size: 14px; font-family: var(--font-handwritten); }
+.empty p { color: var(--quiet); line-height: 1.7; font-size: 14px; font-family: var(--font-pearl); }
+.empty a { display: inline-flex; align-items: center; gap: 12px; margin-top: 20px; font-size: 14px; font-family: var(--font-pearl); }
 
 /* Audio project - rough scratched divider */
 .audio-project {
@@ -887,6 +919,7 @@ h3 { font-family: var(--font-pearl); font-size: 32px; font-weight: 300; font-sty
   border-top: none;
   position: relative;
 }
+/* Chinese-ink brush stroke under audio project divider */
 .audio-project::before {
   content: '';
   position: absolute;
@@ -895,11 +928,20 @@ h3 { font-family: var(--font-pearl); font-size: 32px; font-weight: 300; font-sty
   width: 100%;
   height: 2px;
   background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 5%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0.15) 95%, transparent 100%),
-    linear-gradient(90deg, transparent 20%, rgba(255,255,255,0.08) 25%, transparent 28%),
-    linear-gradient(90deg, transparent 60%, rgba(255,255,255,0.06) 65%, transparent 68%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
 }
-.audio-project .mono { font-family: var(--font-handwritten); font-size: 12px; letter-spacing: 0; text-transform: none; }
+.audio-project .mono { font-family: var(--font-pearl); font-size: 12px; letter-spacing: 0; text-transform: none; }
 audio { width: 100%; margin-top: 20px; }
 
 /* About — consistent with rest of site, no dark background */
@@ -912,13 +954,13 @@ audio { width: 100%; margin-top: 20px; }
 .about p { color: var(--quiet); line-height: 1.9; max-width: 560px; font-weight: 300; }
 .about .large-copy { font-family: var(--font-pearl); font-size: 30px; color: var(--paper); line-height: 1.55; font-weight: 300; font-style: italic; letter-spacing: 0.02em; }
 .about a { display: inline-flex; gap: 20px; margin-top: 24px; }
-.muted { color: var(--quiet); line-height: 1.8; font-family: var(--font-handwritten); }
+.muted { color: var(--quiet); line-height: 1.8; font-family: var(--font-pearl); }
 
 /* Journal — scratch-off accordion style */
 details.service summary {
   list-style: none;
   cursor: pointer;
-  font-family: var(--font-handwritten);
+  font-family: var(--font-pearl);
   font-size: 18px;
   color: var(--paper);
   padding: 10px 0;
@@ -931,7 +973,7 @@ details.service p {
   padding: 10px 0 20px 20px;
   border-left: none;
   position: relative;
-  font-family: var(--font-handwritten);
+  font-family: var(--font-pearl);
 }
 /* Scratched line beside journal text */
 details.service p::before {
@@ -1004,7 +1046,7 @@ details.service p::before {
 .contact-item svg { color: var(--accent-color); flex-shrink: 0; margin-top: 4px; }
 
 /* Forms - scratched input lines */
-form label { display: block; font-size: 13px; font-family: var(--font-handwritten); margin-bottom: 23px; }
+form label { display: block; font-size: 13px; font-family: var(--font-pearl); margin-bottom: 23px; }
 input, select, textarea {
   width: 100%;
   background: transparent;
@@ -1014,11 +1056,11 @@ input, select, textarea {
   padding: 14px 0;
   border-radius: 0;
   outline: none;
-  font-family: var(--font-handwritten);
+  font-family: var(--font-pearl);
   font-size: 14px;
   position: relative;
 }
-/* Rough scratched line under inputs */
+/* Chinese-ink brush stroke under inputs */
 input::after, select::after, textarea::after {
   content: '';
   position: absolute;
@@ -1027,19 +1069,32 @@ input::after, select::after, textarea::after {
   width: 100%;
   height: 2px;
   background:
-    /* Main scratch line */
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 3%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.25) 97%, transparent 100%),
-    /* Imperfect gaps */
-    linear-gradient(90deg, transparent 15%, rgba(255,255,255,0.15) 18%, transparent 20%),
-    linear-gradient(90deg, transparent 60%, rgba(255,255,255,0.12) 63%, transparent 65%),
-    linear-gradient(90deg, transparent 85%, rgba(255,255,255,0.1) 88%, transparent 90%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
   transition: all .3s;
 }
 input:focus::after, select:focus::after, textarea:focus::after {
   background:
-    linear-gradient(90deg, transparent 0%, var(--accent-color) 3%, var(--accent-color) 50%, var(--accent-color) 97%, transparent 100%),
-    linear-gradient(90deg, transparent 15%, rgba(201,160,220,0.4) 18%, transparent 20%),
-    linear-gradient(90deg, transparent 60%, rgba(201,160,220,0.3) 63%, transparent 65%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.6) 10%,
+      rgba(136,170,255,0.5) 25%,
+      rgba(136,255,170,0.4) 40%,
+      rgba(255,204,136,0.5) 55%,
+      rgba(255,136,170,0.4) 70%,
+      rgba(201,160,220,0.3) 85%,
+      transparent 100%
+    );
 }
 select option { background: var(--ink); }
 textarea { resize: vertical; }
@@ -1053,6 +1108,7 @@ small { color: var(--quiet); font-size: 12px; line-height: 1.7; font-family: var
   border-bottom: none;
   position: relative;
 }
+/* Chinese-ink brush stroke under newsletter */
 .newsletter::after {
   content: '';
   position: absolute;
@@ -1061,9 +1117,18 @@ small { color: var(--quiet); font-size: 12px; line-height: 1.7; font-family: var
   width: 90%;
   height: 2px;
   background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 5%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.1) 95%, transparent 100%),
-    linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.06) 35%, transparent 38%),
-    linear-gradient(90deg, transparent 70%, rgba(255,255,255,0.05) 75%, transparent 78%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
 }
 .newsletter h3 { margin: 0; font-style: italic; }
 .newsletter p { font-size: 14px; color: var(--quiet); font-family: var(--font-handwritten); }
@@ -1081,10 +1146,10 @@ footer {
   align-items: center;
   font-size: 12px;
   color: var(--quiet);
-  font-family: var(--font-handwritten);
+  font-family: var(--font-pearl);
   position: relative;
 }
-/* Scratched line above footer */
+/* Chinese-ink brush stroke above footer */
 footer::before {
   content: '';
   position: absolute;
@@ -1093,10 +1158,18 @@ footer::before {
   width: 90%;
   height: 2px;
   background:
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 5%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.1) 95%, transparent 100%),
-    linear-gradient(90deg, transparent 20%, rgba(255,255,255,0.06) 25%, transparent 28%),
-    linear-gradient(90deg, transparent 55%, rgba(255,255,255,0.05) 60%, transparent 63%),
-    linear-gradient(90deg, transparent 80%, rgba(255,255,255,0.04) 85%, transparent 88%);
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(201,160,220,0.3) 10%,
+      rgba(136,170,255,0.25) 25%,
+      rgba(136,255,170,0.2) 40%,
+      rgba(255,204,136,0.25) 55%,
+      rgba(255,136,170,0.2) 70%,
+      rgba(201,160,220,0.15) 85%,
+      transparent 100%
+    );
+  border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%;
+  filter: blur(0.5px);
 }
 footer .brand { color: var(--paper); }
 footer button { border: 0; background: none; font-size: 12px; font-family: var(--font-handwritten); }
@@ -1112,7 +1185,7 @@ footer button { border: 0; background: none; font-size: 12px; font-family: var(-
   padding: 25px;
   z-index: 30;
   box-shadow: 0 10px 60px #0008;
-  font-family: var(--font-handwritten);
+  font-family: var(--font-pearl);
   position: relative;
 }
 .cookies::before {
@@ -1148,7 +1221,14 @@ footer button { border: 0; background: none; font-size: 12px; font-family: var(-
   h1 { margin-top: 100px; font-size: 68px; }
   .hero-bottom { display: block; }
   .hero-bottom .primary { margin-top: 25px; }
-  .sonic-scene { inset: 80px -70% 50px 0; opacity: .4; }
+  .sonic-scene {
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70%;
+    height: 100px;
+    opacity: 0.25;
+  }
   .hero-caption { margin-top: 75px; font-size: 8px; gap: 20px; }
   .hero-caption > span { max-width: 145px; }
   .signal-button span { display: none; }

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
 import { ArrowUpRight, ArrowDown, AudioLines, Play, Pause, Mail, Phone } from 'lucide-react';
 import { useCookieBanner } from '@/hooks/use-cookie-banner';
 import { openCookiePreferences } from '@/lib/cookie-consent';
@@ -43,93 +42,155 @@ const JOURNAL_ARTICLES = [
 	},
 ];
 
+// DAW session sketch — hand-drawn audio track lanes in playback mode
 export function SonicScene() {
 	const host = useRef<HTMLDivElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const reducedMotion = useRef(false);
+
 	useEffect(() => {
-		const el = host.current;
-		if (!el) return;
-		let renderer: THREE.WebGLRenderer;
-		try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); } catch { return; }
-		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-		el.appendChild(renderer.domElement);
-		const scene = new THREE.Scene();
-		const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
-		camera.position.z = 8;
-		const group = new THREE.Group();
-		scene.add(group);
-		const materials: THREE.Material[] = [];
-		const baseHues: number[] = [];
-		for (let i = 0; i < 64; i++) {
-			const h = .3 + 2.5 * Math.pow(Math.sin(i * .19), 2) * Math.sin((i / 64) * Math.PI);
-			const hue = (i / 64) * 0.8 + 0.1;
-			baseHues.push(hue % 1);
-			const color = new THREE.Color().setHSL(hue % 1, 0.35, 0.75);
-			const mat = new THREE.MeshStandardMaterial({ color, metalness: .9, roughness: .15 });
-			materials.push(mat);
-			const mesh = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, h, 8), mat);
-			mesh.position.x = (i - 32) * .075;
-			group.add(mesh);
-		}
-		group.rotation.z = -.28;
-		group.rotation.y = .45;
-		scene.add(new THREE.AmbientLight(0xffffff, 2));
-		const light = new THREE.PointLight(0xff88aa, 70);
-		light.position.set(2, 2, 3);
-		scene.add(light);
-		const light2 = new THREE.PointLight(0x88aaff, 50);
-		light2.position.set(-2, -1, 2);
-		scene.add(light2);
-		const light3 = new THREE.PointLight(0x88ffaa, 40);
-		light3.position.set(0, 3, -2);
-		scene.add(light3);
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+		const ctx = canvas.getContext('2d');
+		if (!ctx) return;
+
+		reducedMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+		let frame: number;
+
 		const resize = () => {
-			renderer.setSize(el.clientWidth, el.clientHeight);
-			camera.aspect = el.clientWidth / el.clientHeight;
-			camera.updateProjectionMatrix();
+			const parent = canvas.parentElement;
+			if (parent) {
+				canvas.width = parent.clientWidth * window.devicePixelRatio;
+				canvas.height = parent.clientHeight * window.devicePixelRatio;
+				ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+			}
 		};
 		const observer = new ResizeObserver(resize);
-		observer.observe(el);
+		observer.observe(canvas.parentElement!);
 		resize();
-		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-		let frame = 0;
-		// Ripple sync: match the 10s CSS ripple-lake animation cycle
-		// Returns saturation multiplier: 0.05 (pearl) → 1.0 (full color) → 0.05 (pearl)
+
+		// Ripple sync: match the 6s CSS ripple-lake animation
 		const rippleCycle = (time: number) => {
-			const cycle = 10000; // 10 seconds matching CSS animation
-			const t = (time % cycle) / cycle; // 0 to 1
-			// Mirror sine wave: peaks at 50% (full color), valleys at 0% and 100% (pearl)
+			const cycle = 6000;
+			const t = (time % cycle) / cycle;
 			const saturation = Math.sin(t * Math.PI);
-			// Map to range: 0.05 (pearl calm) to 1.0 (full ripple)
 			return 0.05 + 0.95 * saturation;
 		};
-		const draw = (t: number) => {
-			if (!reduced) {
-				group.rotation.y = .45 + Math.sin(t * .0003) * .3;
-				// Sync waveform colors with ripple animation
-				const sat = rippleCycle(t);
-				for (let i = 0; i < materials.length; i++) {
-					const mat = materials[i] as THREE.MeshStandardMaterial;
-					mat.color.setHSL(baseHues[i], sat * 0.35, 0.75);
+
+		// Pastel palette matching the site
+		const pastelColors = [
+			{ r: 201, g: 160, b: 220 }, // purple
+			{ r: 136, g: 170, b: 255 }, // blue
+			{ r: 136, g: 255, b: 170 }, // green
+			{ r: 255, g: 204, b: 136 }, // amber
+			{ r: 255, g: 136, b: 170 }, // pink
+		];
+
+		// Seeded random for consistent waveforms
+		const seededRandom = (seed: number) => {
+			const x = Math.sin(seed) * 10000;
+			return x - Math.floor(x);
+		};
+
+		// DAW session sketch — ultra-subtle, consistent with scratch-off aesthetic
+		const drawDAWSketch = (ctx: CanvasRenderingContext2D, w: number, h: number, time: number, sat: number) => {
+			ctx.clearRect(0, 0, w, h);
+
+			const trackCount = 3;
+			const trackH = h / trackCount;
+			const padding = 30;
+
+			// Playhead follows the exact ripple curve — slow, light-like
+			const cycle = 6000;
+			const cycleT = (time % cycle) / cycle;
+			const playheadProgress = Math.sin(cycleT * Math.PI);
+			const playheadX = padding + playheadProgress * (w - padding * 2);
+			const headIntensity = sat;
+
+			// --- 3 subtle waveform tracks ---
+			for (let track = 0; track < trackCount; track++) {
+				const trackY = track * trackH;
+				const trackCenterY = trackY + trackH / 2;
+				const color = pastelColors[track % pastelColors.length];
+				const seed = track * 1000 + 42;
+
+				// Draw a single thin waveform line per track
+				const baseAlpha = 0.04 + headIntensity * 0.06;
+				ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${baseAlpha})`;
+				ctx.lineWidth = 0.5;
+				ctx.beginPath();
+
+				for (let i = 0; i < w - padding * 2; i += 3) {
+					const x = padding + i;
+					const normalizedX = i / (w - padding * 2);
+
+					// Simple, organic waveform
+					const wave = Math.sin(normalizedX * Math.PI * (4 + track * 2) + seed * 0.01) * 0.3
+						+ Math.sin(normalizedX * Math.PI * (7 + track) + seed * 0.03) * 0.2
+						+ seededRandom(seed + i) * 0.15;
+
+					// Envelope — fade at edges
+					const envelope = Math.sin(normalizedX * Math.PI);
+					const amplitude = wave * envelope * (trackH * 0.3);
+
+					const y = trackCenterY + amplitude;
+					if (i === 0) ctx.moveTo(x, y);
+					else ctx.lineTo(x, y);
 				}
-				// Sync lights with ripple too
-				light.intensity = 70 * (0.3 + 0.7 * sat);
-				light2.intensity = 50 * (0.3 + 0.7 * sat);
-				light3.intensity = 40 * (0.3 + 0.7 * sat);
+				ctx.stroke();
 			}
-			renderer.render(scene, camera);
+
+			// --- Playhead — thin line, subtle glow ---
+			if (headIntensity > 0.1) {
+				// Very subtle glow
+				const glowWidth = 40;
+				const gradient = ctx.createLinearGradient(
+					playheadX - glowWidth, 0,
+					playheadX, 0,
+					playheadX + glowWidth, 0
+				);
+				gradient.addColorStop(0, `rgba(255,255,255,0)`);
+				gradient.addColorStop(0.5, `rgba(255,255,255,${headIntensity * 0.04})`);
+				gradient.addColorStop(1, `rgba(255,255,255,0)`);
+				ctx.fillStyle = gradient;
+				ctx.fillRect(playheadX - glowWidth, 0, glowWidth * 2, h);
+
+				// Thin playhead line
+				ctx.strokeStyle = `rgba(255,255,255,${headIntensity * 0.25})`;
+				ctx.lineWidth = 0.5;
+				ctx.beginPath();
+				ctx.moveTo(playheadX, 0);
+				ctx.lineTo(playheadX, h);
+				ctx.stroke();
+			}
+		};
+
+		const draw = (t: number) => {
+			const w = canvas.width / window.devicePixelRatio;
+			const h = canvas.height / window.devicePixelRatio;
+			const sat = rippleCycle(t);
+
+			if (!reducedMotion.current) {
+				drawDAWSketch(ctx, w, h, t, sat);
+			}
+
 			frame = requestAnimationFrame(draw);
 		};
+
 		frame = requestAnimationFrame(draw);
+
 		return () => {
 			cancelAnimationFrame(frame);
 			observer.disconnect();
-			group.children.forEach(obj => { (obj as THREE.Mesh).geometry.dispose(); });
-			materials.forEach(m => m.dispose());
-			renderer.dispose();
-			renderer.domElement.remove();
 		};
 	}, []);
-	return <div className="sonic-scene" ref={host} aria-hidden="true" />;
+
+	return (
+		<div className="sonic-scene" ref={host} aria-hidden="true">
+			<canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
+		</div>
+	);
 }
 
 // Sequential animation controller for the "feel" word
