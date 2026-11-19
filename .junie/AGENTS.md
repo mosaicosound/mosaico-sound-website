@@ -18,46 +18,58 @@
 
 ## Hostinger Deployment Setup
 
+### ⚠️ URGENT — Deployment is BROKEN (as of 2026-11-19)
+The site has NOT been successfully deployed with the latest changes. The GitHub Actions workflow fails at the upload step.
+
 ### Hosting Plan
 - **Plan**: Hostinger Premium (shared hosting)
-- **SSH Access**: Configured (port 65002, user u370713035)
+- **SFTP Access**: Configured (port 65002, user u370713035, IP 157.173.209.67)
 - **Web Root**: `public_html`
-- **Important Limitation**: Shared hosting does NOT run build commands like `npm run build` automatically on the server
+- **Critical Limitation**: SSH account is **SFTP-only** (`/sbin/nologin`) — **NO shell command execution possible**. Any GitHub Action that tries to run shell commands (like `appleboy/ssh-action`) will fail with `/sbin/nologin: No such file or directory`.
+- **Important**: Shared hosting does NOT run build commands like `npm run build` automatically on the server
 
-### Deployment Workflow (Fully Automated via GitHub Actions SSH)
-1. **Make changes** to your source code locally
-2. **Commit and push** to GitHub:
-   ```powershell
-   cd "C:\dev\Mosaico\Source Material\Website AI Code\horizons-export"
-   git add .
-   git commit -m "Your changes description"
-   git push
-   ```
-3. **GitHub Actions** automatically builds the project and deploys via SSH to Hostinger
-4. **Old files are deleted** before uploading new build — no stale asset accumulation
+### Hostinger SFTP Credentials
+- **Server IP**: `157.173.209.67`
+- **Port**: `65002`
+- **Username**: `u370713035`
+- **Password**: `A@Cu%kb8!Qcg^@7MymCY`
+- **Access type**: SFTP only (no shell — `/sbin/nologin`)
 
-**No manual build step needed!** Just push source code to `master` and the rest is automatic.
-
-### GitHub Actions Workflow
+### Deployment Workflow (⚠️ BROKEN — Needs Fix)
 - **Workflow file**: `.github/workflows/deploy.yml`
-- **How it works**: Push to `master` → GitHub Actions installs deps → builds → SSH to Hostinger → deletes old files in `public_html` → uploads fresh build
-- **Status**: ⏳ PENDING — needs GitHub repository secrets to be added
-- **Required secrets** (add at GitHub → Settings → Secrets → Actions):
-  - `HOSTINGER_HOST`: SSH hostname (e.g., `ssh.hostinger.com`)
-  - `HOSTINGER_PORT`: `65002`
-  - `HOSTINGER_USER`: `u370713035`
-  - `HOSTINGER_PASSWORD`: (SSH password)
-- **Free**: Uses GitHub Actions free tier (2,000 build minutes/month)
+- **Current state**: **Broken** — workflow triggers on push to `master`, build succeeds, but upload step fails.
+- **Root cause**: The Hostinger SSH account has `/sbin/nologin` (SFTP-only, no shell). The current deploy.yml has encoding corruption (Chinese characters in action name `wepanda改造/scp-sftp-action` are mangled in the file).
+- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build` — all succeed in GitHub Actions.
+- **What fails**: Any action requiring shell access on the remote server.
+
+### 🔧 ACTION REQUIRED — Fix deploy.yml
+1. **Rewrite `.github/workflows/deploy.yml` from scratch** (current file has encoding corruption).
+2. Use a **pure SFTP action** that supports `sftp_only: true` (no shell needed). Recommended:
+   ```yaml
+   - name: Upload build to Hostinger via SFTP
+     uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+     with:
+       username: u370713035
+       server: 157.173.209.67
+       port: 65002
+       password: A@Cu%kb8!Qcg^@7MymCY
+       local_path: dist/apps/web/client/
+       remote_path: /public_html
+       sftp_only: true
+   ```
+3. Push to `master` to trigger a test deployment.
+4. Verify the site at `https://sharp-paleturquoise-bat-64.hostingersite.com` shows the new content (typewriter animation, removed sections).
+5. Once working, move credentials to GitHub repository secrets for security.
 
 ### Git Setup Status
 - **Git Installed**: Yes
 - **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ⏳ Workflow file created, needs secrets added
+- **GitHub Actions**: ⚠️ Workflow exists but fails at upload — needs SFTP-only action
 - **Domain**: `mosaicosound.com` (transferring, pending)
 
 ### Why This Deployment Method
 - **Root Cause of Old Issues**: Hostinger's File Manager does NOT automatically delete old files when uploading new builds. Hashed assets from previous builds accumulate.
-- **GitHub Actions SSH Solution**: Each deployment **deletes all old files** in `public_html` first, then uploads only the fresh build files.
+- **SFTP Solution**: Upload fresh build files via SFTP. Old unreferenced assets will remain on disk but won't be loaded by the browser since `index.html` references only the new hashed assets.
 - **No Manual File Uploads**: Never use File Manager for deployments.
 
 ## Known Issues & Resolved Problems
@@ -238,8 +250,9 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **GitHub + GitHub Actions**: Workflow file created (`.github/workflows/deploy.yml`), needs SSH secrets added to GitHub repo settings before auto-deploy works
-- **Hostinger SSH**: Port 65002, user `u370713035`, web root `public_html`
+- **🔴 TOP PRIORITY**: Fix the broken GitHub Actions deployment (see "ACTION REQUIRED" section above). The site has NOT been deployed with the latest changes.
+- **Hostinger SFTP**: SFTP-only access (no shell). Use `wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`.
+- **Hostinger credentials**: IP `157.173.209.67`, port `65002`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
 - **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
 - **Typography**: Cormorant Garamond unified everywhere. User rejected Architects Daughter (too casual) in favor of elegant serif.
