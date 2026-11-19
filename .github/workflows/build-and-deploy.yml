@@ -26,6 +26,8 @@ jobs:
         run: npm run build
 
       - name: Deploy built files to build branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "Junie"
           git config --global user.email "junie@jetbrains.com"
@@ -42,7 +44,7 @@ jobs:
           cp -r deploy/* .
           cp deploy/.* . 2>/dev/null || true
           
-          # Commit and push
+          # Commit and push using GITHUB_TOKEN
           git add -A
           git commit -m "Build: Auto-deploy from ${{ github.sha }}" || echo "No changes to commit"
-          git push origin build --force
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/mosaicosound/mosaico-sound-website.git build --force
