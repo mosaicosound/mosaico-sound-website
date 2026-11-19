@@ -26,10 +26,10 @@ jobs:
       - name: Clean old files on Hostinger
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.HOSTINGER_HOST }}
-          port: ${{ secrets.HOSTINGER_PORT }}
-          username: ${{ secrets.HOSTINGER_USER }}
-          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          host: 157.173.209.67
+          port: 65002
+          username: u370713035
+          password: A@Cu%kb8!Qcg^@7MymCY
           script: |
             cd public_html
             rm -rf assets
@@ -38,9 +38,9 @@ jobs:
       - name: Upload build to Hostinger
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.HOSTINGER_HOST }}
-          port: ${{ secrets.HOSTINGER_PORT }}
-          username: ${{ secrets.HOSTINGER_USER }}
-          password: ${{ secrets.HOSTINGER_PASSWORD }}
+          host: 157.173.209.67
+          port: 65002
+          username: u370713035
+          password: A@Cu%kb8!Qcg^@7MymCY
           source: "dist/apps/web/client/*"
           target: "public_html"
