@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, AudioLines, Play, Pause, Mail, Phone } from 'lucide-react';
+import { ArrowUpRight, AudioLines, Mail, Phone } from 'lucide-react';
 import { useCookieBanner } from '@/hooks/use-cookie-banner';
 import { openCookiePreferences } from '@/lib/cookie-consent';
 import { siteCopy } from '@/copy';
@@ -335,35 +335,3 @@ export function Cookies() {
 	);
 }
 
-export function SignalDemo() {
-	const [active, setActive] = useState(false);
-	const sound = useRef<AudioContext | null>(null);
-	const c = siteCopy.signal;
-	function toggle() {
-		if (sound.current) {
-			void sound.current.close();
-			sound.current = null;
-			setActive(false);
-			return;
-		}
-		const context = new AudioContext();
-		const oscillator = context.createOscillator();
-		const gain = context.createGain();
-		oscillator.type = 'sine';
-		oscillator.frequency.value = 110;
-		gain.gain.value = .035;
-		oscillator.connect(gain);
-		gain.connect(context.destination);
-		oscillator.start();
-		sound.current = context;
-		setActive(true);
-	}
-	useEffect(() => () => { void sound.current?.close(); }, []);
-	return (
-		<button className="signal-button" onClick={toggle}>
-			{active ? <Pause size={14} /> : <Play size={14} />}
-			{active ? c.mute : c.play}
-			<span>{c.note}</span>
-		</button>
-	);
-}

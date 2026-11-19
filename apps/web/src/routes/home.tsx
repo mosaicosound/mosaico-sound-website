@@ -1,4 +1,4 @@
-import { Hero, Services, Portfolio, About, Contact, Newsletter, SignalDemo } from '@/components/home/studio';
+import { Hero, Services, Portfolio, About, Contact, Newsletter } from '@/components/home/studio';
 
 export function meta() {
 	return [

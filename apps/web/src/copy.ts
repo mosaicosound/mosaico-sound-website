@@ -169,12 +169,4 @@ export const siteCopy = {
     save: 'Save choices',
   },
 
-  // ----------------------------------------------------------
-  //  SIGNAL DEMO (audio tone button)
-  // ----------------------------------------------------------
-  signal: {
-    play: 'LISTEN TO THE SIGNAL',
-    mute: 'MUTE SIGNAL',
-    note: 'INTERACTIVE TONE / NOT PORTFOLIO AUDIO',
-  },
 };
