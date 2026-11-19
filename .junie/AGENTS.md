@@ -22,20 +22,19 @@
 - **Git Integration**: Available at no extra cost on Premium plan
 - **Important Limitation**: Shared hosting does NOT run build commands like `npm run build` automatically on the server
 
-### Deployment Workflow (Free, No Extra Cost)
-1. **Build locally** on your computer:
-   ```powershell
-   cd "C:\dev\Mosaico\Source Material\Website AI Code\horizons-export\apps\web"
-   npm run build
-   ```
-2. **Commit and push** the built files to GitHub:
+### Deployment Workflow (Fully Automated, Free)
+1. **Make changes** to your source code locally
+2. **Commit and push** to GitHub:
    ```powershell
    cd "C:\dev\Mosaico\Source Material\Website AI Code\horizons-export"
    git add .
-   git commit -m "Update site"
+   git commit -m "Your changes description"
    git push
    ```
-3. **Hostinger auto-deploys** from GitHub — replaces all files in `public_html`, so no old assets accumulate
+3. **GitHub Actions** automatically builds the project and pushes the compiled files to the `build` branch
+4. **Hostinger** auto-deploys from the `build` branch — replaces all files in `public_html`, so no old assets accumulate
+
+**No manual build step needed!** Just push source code to `master` and the rest is automatic.
 
 ### Why Git Deployment (Not Manual Upload)
 - **Root Cause of Old Issues**: Hostinger's File Manager does NOT automatically delete old files when uploading new builds. It only updates existing files and adds new ones, so hashed assets from previous builds accumulate.
@@ -44,9 +43,12 @@
 
 ### Git Setup Status
 - **Git Installed**: Yes (version 2.56.0.4)
-- **Repository Initialized**: Yes, with 214 files committed
-- **GitHub Repository**: NOT YET CREATED — user needs to create a GitHub repo and connect it
-- **Hostinger-Git Connection**: NOT YET CONFIGURED — user needs to connect via hPanel → Advanced → Git
+- **Repository Initialized**: Yes
+- **GitHub Repository**: ✅ Created at `https://github.com/mosaicosound/mosaico-sound-website`
+- **GitHub Actions**: ✅ Working — automatically builds on every push to `master`, pushes built files to `build` branch
+- **Build Branch**: ✅ `origin/build` contains compiled static files (index.html, assets/, favicon.png, robots.txt, sitemap.xml)
+- **Hostinger-Git Connection**: ⏳ PENDING — user needs to connect via hPanel → Advanced → Git → select `build` branch
+- **GitHub Token**: Stored in Git config for authentication (classic PAT with `repo` scope)
 
 ### Deployment Guide
 - A comprehensive `DEPLOYMENT.md` file has been created in the project root with step-by-step instructions for:
@@ -56,11 +58,11 @@
   - Making updates with simple git commands
   - Troubleshooting common issues
 
-### Alternative: GitHub Actions Automation (Free)
-- Can automate the build step so user doesn't have to run `npm run build` manually
-- GitHub Actions is free for public repos and includes 2,000 build minutes/month for private repos
-- Workflow: Push source code → GitHub Actions builds → Built files pushed to `build` branch → Hostinger deploys from `build` branch
-- **Not yet set up** — offered to user as an option
+### GitHub Actions Automation (✅ SET UP & WORKING)
+- **Workflow file**: `.github/workflows/build-and-deploy.yml`
+- **How it works**: Push source code to `master` → GitHub Actions builds → Built files pushed to `build` branch → Hostinger deploys from `build` branch
+- **Status**: ✅ Tested and working — Run #2 completed successfully
+- **Free**: Uses GitHub Actions free tier (2,000 build minutes/month for private repos)
 
 ## Known Issues & Resolved Problems
 
@@ -99,6 +101,46 @@ horizons-export/
 
 ## Design Decisions & Current State (as of 2026-11-19)
 
+### Overall Aesthetic: Lottery Ticket Scratch-Off Effect
+- **Core concept**: User wants the website to feel like a scratched lottery ticket — letters coming to life as if revealed by scratching with a metal coin, with ink textures, scratch marks, and messy imperfections throughout.
+- **Ink color**: Darkened to `#0a0a0c` (deeper black) for richer contrast, with `--ink-light: #141418` as a secondary dark tone.
+- **Paper color**: Warmed to `#e8e6e1` for an aged paper feel.
+- **Pure CSS implementation**: All scratch effects use layered gradients, pseudo-elements (`::before`, `::after`), and text shadows — no JavaScript or external libraries needed, well within Hostinger Premium limits.
+
+### Background Texture (body::before)
+- A fixed overlay covers the entire viewport with:
+  - Fine horizontal scratch marks (repeating gradient every 2-3px)
+  - Fine vertical scratch marks (repeating gradient every 3-4px)
+  - Random diagonal scratch lines at various angles (45°, -30°, 70°, -60°, 15°)
+  - Ink noise texture (radial gradients at different positions)
+- Content elements (`.site-header`, `.hero`, `.section`, `.newsletter`, `footer`) sit above this texture via `position: relative; z-index: 1;`
+
+### Typography (Fully Consistent Handwritten Style)
+- **Font choice**: Architects Daughter (Google Fonts, free) — technical sketch-pen style, like notes written with a fine-tip pen on a Remarkable tablet
+- **Applied to**: EVERYTHING on the site — body text, h1, h2, h3, .brand, navigation, buttons, section labels, .mono text, service numbers, portfolio categories, journal details, contact info, form labels and inputs, newsletter, footer, cookies dialog, empty state
+- **Inter font**: Still loaded as fallback in CSS variables but no longer used as the primary font
+- **CSS variables**: `--font-handwritten: 'Architects Daughter', cursive` and `--font-sans: 'Inter', Arial, Helvetica, sans-serif`
+- **Font loaded via**: `root.tsx` Google Fonts link in the `<head>` (not via @import in CSS, which doesn't work with Vite)
+- **Design rationale**: User wanted "elegance + handwritten in a sketch pen line type of way... like the remarkable paper tablet feels like." Architects Daughter was chosen over Caveat (too casual), Kalam (too calligraphic), and Dancing Script (too formal) for its technical yet hand-drawn quality.
+- **Text styling**: Removed uppercase text-transform and tight letter-spacing from labels and captions — they clash with handwritten style. Font sizes adjusted slightly larger to compensate for the handwritten feel.
+- **Body paragraphs**: Also use Architects Daughter (not Inter) for complete consistency — the entire site feels like one notebook
+
+### Ink Bleed & Scratch Marks on Headings
+- **h1 text-shadow**: `0 0 1px rgba(232,230,225,0.3), 1px 1px 2px rgba(0,0,0,0.5), -1px -1px 1px rgba(255,255,255,0.05)` — letters look freshly scratched
+- **h2 text-shadow**: `0 0 1px rgba(232,230,225,0.25), 1px 1px 2px rgba(0,0,0,0.4)` — ink bleed on section headings
+- **em text-shadow**: `0 0 2px rgba(232,230,225,0.2), 2px 1px 3px rgba(0,0,0,0.4)` — ink scratch effect on colored text
+- **h1::after, h2::after**: Scratch marks and ink splatter dots around headings via pseudo-elements with radial gradients simulating coin scratches
+
+### Rough Hand-Drawn Borders (replacing all clean borders)
+- **All clean borders replaced** with rough scratch-line borders using `::before` pseudo-elements
+- **Elements with scratch borders**: `.site-header`, `.nav-contact`, `.primary` button, `.chips button`, `.service` dividers, `.hero-caption`, `.signal-button`, `.section` dividers, `.empty` state, form inputs, footer, newsletter, audio projects, cookies dialog
+- **Border technique**: Layered gradients simulating imperfect hand-drawn lines with slightly uneven corners (`border-radius: 2px 1px 3px 2px`)
+- **Hover states**: Scratch borders fade to lower opacity on hover, revealing gradient text underneath
+
+### Ink Splatter Details
+- **`.primary::after`**: Tiny ink splatter dot near the primary button
+- **Heading scratch marks**: Random scratch lines above and below h1/h2, plus ink splatter dots at various positions
+
 ### Hero Section
 - **Headline**: "Sonic Artistry<br/><em>Across</em> <em>Mediums</em>" (changed from "Sound that makes you feel")
 - **Both "Across" and "Mediums"** use `<em>` tags for the multicolor gradient effect
@@ -134,13 +176,16 @@ horizons-export/
 ### Header Animated Lines
 - Multicolor shimmer lines on header bottom border and section dividers
 - Uses the same pastel color palette as the gradient
+- Shimmer lines now have a scratch mark base layer plus animated color overlay
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- User selected **"Install Git + Auto Deploy"** solution for future deployments
-- Git is installed and repo is initialized, but **GitHub repo creation and Hostinger connection are NOT YET DONE**
-- User may want GitHub Actions automation set up in the future to automate the build step
-- User wants to **experiment with the "feel" animations** — they are paused for now, ready to be re-enabled
+- **GitHub + GitHub Actions are fully set up and working** — just push to `master` and the `build` branch is auto-updated
+- **Hostinger-Git connection**: User confirmed deployment is complete and working as of 2026-11-19
+- User may want to **experiment with the "feel" animations** — they are paused for now, ready to be re-enabled
+- **Current aesthetic direction**: Lottery ticket scratch-off effect with ink textures, scratch marks, and messy imperfections. User wants more messiness and scratch effects — "see those letters come to life like the effect when you scratch a lottery ticket with a metal coin."
+- **Typography direction**: Architects Daughter handwritten font applied to everything. User wants "elegance + handwritten in a sketch pen line type of way... like the remarkable paper tablet feels like."
+- **Styling areas still to refine**: Services section, Portfolio section, About section, Contact section, Footer & Newsletter — user selected "Overall Typography" first, then moved to scratch-off effects. Other sections may need similar treatment.
 - Website copy documents are saved at:
   - `Website Copy - Simple.txt`
   - `Website Copy - Edit This.html`
