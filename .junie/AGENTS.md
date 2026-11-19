@@ -5,24 +5,26 @@
 - **Project Root**: `C:\dev\Mosaico\Source Material\Website AI Code\horizons-export`
 - **Web App Directory**: `apps/web/`
 - **Live URL**: `https://sharp-paleturquoise-bat-64.hostingersite.com` (Hostinger demo/staging domain)
+- **Domain**: `mosaicosound.com` (transferring, pending)
 - **Package Name**: `mosaico-sound-web` (updated from `sonic-artisan-web`)
 
 ## Tech Stack
 - **Framework**: React Router v8 with Vite
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS with Radix UI components
+- **Styling**: Tailwind CSS (minimal config, no shadcn/Radix UI)
 - **Build Output**: `dist/apps/web/` (configured in `react-router.config.ts`)
 - **SSR**: Disabled (static site)
-- **Key Dependencies**: React 19, Framer Motion, Three.js, Lucide React icons, Sonner (toasts)
+- **Key Dependencies**: React 19, Lucide React icons (only 5 packages total — all bloat removed)
 
 ## Hostinger Deployment Setup
 
 ### Hosting Plan
 - **Plan**: Hostinger Premium (shared hosting)
-- **Git Integration**: Available at no extra cost on Premium plan
+- **SSH Access**: Configured (port 65002, user u370713035)
+- **Web Root**: `public_html`
 - **Important Limitation**: Shared hosting does NOT run build commands like `npm run build` automatically on the server
 
-### Deployment Workflow (Fully Automated, Free)
+### Deployment Workflow (Fully Automated via GitHub Actions SSH)
 1. **Make changes** to your source code locally
 2. **Commit and push** to GitHub:
    ```powershell
@@ -31,38 +33,32 @@
    git commit -m "Your changes description"
    git push
    ```
-3. **GitHub Actions** automatically builds the project and pushes the compiled files to the `build` branch
-4. **Hostinger** auto-deploys from the `build` branch — replaces all files in `public_html`, so no old assets accumulate
+3. **GitHub Actions** automatically builds the project and deploys via SSH to Hostinger
+4. **Old files are deleted** before uploading new build — no stale asset accumulation
 
 **No manual build step needed!** Just push source code to `master` and the rest is automatic.
 
-### Why Git Deployment (Not Manual Upload)
-- **Root Cause of Old Issues**: Hostinger's File Manager does NOT automatically delete old files when uploading new builds. It only updates existing files and adds new ones, so hashed assets from previous builds accumulate.
-- **Git Integration Solution**: Each deployment via Git **replaces all files** in `public_html` with the latest version from the repository, preventing old asset accumulation.
-- **No Manual File Uploads**: Never use File Manager for deployments again.
+### GitHub Actions Workflow
+- **Workflow file**: `.github/workflows/deploy.yml`
+- **How it works**: Push to `master` → GitHub Actions installs deps → builds → SSH to Hostinger → deletes old files in `public_html` → uploads fresh build
+- **Status**: ⏳ PENDING — needs GitHub repository secrets to be added
+- **Required secrets** (add at GitHub → Settings → Secrets → Actions):
+  - `HOSTINGER_HOST`: SSH hostname (e.g., `ssh.hostinger.com`)
+  - `HOSTINGER_PORT`: `65002`
+  - `HOSTINGER_USER`: `u370713035`
+  - `HOSTINGER_PASSWORD`: (SSH password)
+- **Free**: Uses GitHub Actions free tier (2,000 build minutes/month)
 
 ### Git Setup Status
-- **Git Installed**: Yes (version 2.56.0.4)
-- **Repository Initialized**: Yes
-- **GitHub Repository**: ✅ Created at `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ✅ Working — automatically builds on every push to `master`, pushes built files to `build` branch
-- **Build Branch**: ✅ `origin/build` contains compiled static files (index.html, assets/, favicon.png, robots.txt, sitemap.xml)
-- **Hostinger-Git Connection**: ⏳ PENDING — user needs to connect via hPanel → Advanced → Git → select `build` branch
-- **GitHub Token**: Stored in Git config for authentication (classic PAT with `repo` scope)
+- **Git Installed**: Yes
+- **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
+- **GitHub Actions**: ⏳ Workflow file created, needs secrets added
+- **Domain**: `mosaicosound.com` (transferring, pending)
 
-### Deployment Guide
-- A comprehensive `DEPLOYMENT.md` file has been created in the project root with step-by-step instructions for:
-  - Creating a GitHub repository
-  - Connecting local repo to GitHub
-  - Connecting Hostinger to GitHub for automatic deployments
-  - Making updates with simple git commands
-  - Troubleshooting common issues
-
-### GitHub Actions Automation (✅ SET UP & WORKING)
-- **Workflow file**: `.github/workflows/build-and-deploy.yml`
-- **How it works**: Push source code to `master` → GitHub Actions builds → Built files pushed to `build` branch → Hostinger deploys from `build` branch
-- **Status**: ✅ Tested and working — Run #2 completed successfully
-- **Free**: Uses GitHub Actions free tier (2,000 build minutes/month for private repos)
+### Why This Deployment Method
+- **Root Cause of Old Issues**: Hostinger's File Manager does NOT automatically delete old files when uploading new builds. Hashed assets from previous builds accumulate.
+- **GitHub Actions SSH Solution**: Each deployment **deletes all old files** in `public_html` first, then uploads only the fresh build files.
+- **No Manual File Uploads**: Never use File Manager for deployments.
 
 ## Known Issues & Resolved Problems
 
@@ -86,18 +82,25 @@
 ```
 horizons-export/
 ├── apps/
-│   ├── web/                    # Main website application
-│   │   ├── src/               # Source code
-│   │   ├── package.json       # Dependencies and scripts
-│   │   ├── vite.config.ts     # Build configuration
-│   │   └── react-router.config.ts  # React Router config (SSR: false)
-│   └── pocketbase/            # Backend (not deployed to Hostinger)
+│   └── web/                    # Main website application
+│       ├── src/               # Source code (11 files, all actively used)
+│       │   ├── components/home/studio.tsx  # All page components
+│       │   ├── copy.ts        # All website text
+│       │   ├── index.css      # All styles (~1050 lines)
+│       │   ├── root.tsx       # App root + header + footer
+│       │   ├── routes/home.tsx # Page layout
+│       │   └── ...            # Entry points, hooks, lib
+│       ├── package.json       # Dependencies (5 packages)
+│       ├── vite.config.ts     # Build configuration
+│       └── react-router.config.ts  # React Router config (SSR: false)
 ├── dist/                      # Build output (generated, in .gitignore)
 ├── node_modules/              # Dependencies (generated, in .gitignore)
 ├── .gitignore                 # Files to exclude from Git
-├── DEPLOYMENT.md              # Deployment guide
+├── DEPLOY.md                  # Hostinger deployment guide
+├── .github/workflows/deploy.yml  # GitHub Actions auto-deploy
 └── .junie/                    # Junie AI session context (this folder)
 ```
+**Removed**: `apps/pocketbase/` (entire directory), `plugins/` (80+ template files), `components/ui/` (50+ shadcn files), unused hooks, lib files, config files.
 
 ## Design Decisions & Current State (as of 2026-11-19)
 
@@ -132,54 +135,60 @@ horizons-export/
 - **Design evolution**: Started with Architects Daughter (handwritten) → user wanted elegance → Cormorant Garamond Light Italic for hero → then unified everything to Cormorant Garamond for consistency. Architects Daughter was tried but ultimately replaced.
 
 ### Hero Section — "Sonic Artistry Across Mediums"
-- **Headline**: `Sonic Artistry<br/><em>Across</em> <em>Mediums</em>`
-- **"Sonic Artistry"** (plain text): Pearl shimmer effect — slow 8s gradient animation with soft iridescent colors (white, cool blue, warm pink) and subtle text-shadow glow.
-- **"Across Mediums"** (`<em>` tags): **Ripple-lake animation** — 6s cycle:
-  - 0-15%: Pearl calm (desaturated, soft white/gray)
-  - 15-25%: Rock touches water (color begins to bloom)
-  - 25-50%: Multicolor ripple expands (full vibrant pastel colors)
-  - 50-75%: Ripple fades (colors drain away)
-  - 75-100%: Pearl calm returns
-  - Uses `filter: saturate()` from 0.05 to 1.0 + `brightness()` from 1 to 1.15.
-- **"mosaico sound"** in header/footer: Simple static `var(--accent-gradient)` — **untouched by ripple animation**.
-- **`em` CSS**: `var(--accent-gradient)` with text clipping, `padding: 0 4px`, `overflow: visible`.
-- **`h1 em` CSS**: `var(--accent-gradient-animate)` with `@keyframes ripple-lake` (6s cycle).
+- **Headline**: `Sonic Artistry<br/><em>Across Mediums</em>`
+- **"Sonic Artistry"** (plain text): Pearl shimmer effect — slow gradient animation with soft iridescent colors.
+- **"Across Mediums"** (`<em>` tag): **Typewriter animation** — 12s cycle:
+  - Text reveals letter by letter via `width` animation (0→14ch) with `ease-out` timing
+  - Blinking cursor (`::after` pseudo-element) follows the text reveal
+  - Multicolor gradient letters are revealed as the cursor types
+  - Text is `opacity: 0` before reveal and during reset phase (no pre-show of untyped letters)
+  - Timing uses explicit keyframes matching the cubic ease-out curve (`1 - (1-raw)^3`)
+- **"mosaico sound"** in header/footer: Simple static `var(--accent-gradient)` — **untouched by typewriter animation**.
+- **Removed elements**: No "Explore the work" button, no caption line, no "SCROLL TO DISCOVER" link, no decorative divider.
+
+### Typewriter + DAW Playhead Sync
+- The DAW canvas playhead moves left-to-right in sync with the typewriter cursor
+- Same 12s cycle with matching `ease-out` cubic curve (`1 - (1-raw)^3`)
+- Playhead holds at end (~95%), then resets (~98-100%)
+- No sinusoidal motion — linear left-to-right progress matching the typing rhythm
 
 ### DAW Session Sketch (SonicScene Component)
 - **Location**: `apps/web/src/components/home/studio.tsx` — `SonicScene` component.
 - **Visual**: 3 thin waveform tracks drawn on a 2D canvas, each with a unique pastel color (purple, blue, green).
-- **Playhead**: Thin vertical line that sweeps left-to-right synced with the 6s ripple cycle.
-  - Follows `Math.sin(cycleT * Math.PI)` curve — slow, light-like movement.
+- **Playhead**: Thin vertical line that sweeps left-to-right synced with the 12s typewriter cycle.
+  - Follows cubic ease-out curve (`1 - (1-raw)^3`) — matches CSS typewriter timing exactly.
   - Very subtle glow (40px width, 4% max opacity).
   - Playhead line: 0.5px, 25% max opacity.
+  - Progress received as parameter, not calculated from sine wave.
 - **Positioning**: Centered behind the hero text at 45% width, 140px height, 35% opacity.
 - **Mobile**: 70% width, 100px height, 25% opacity.
 - **CSS class**: `.sonic-scene` — absolute positioned, pointer-events none, z-index 0.
-- **Design rationale**: User wanted a small, subtle DAW session sketch to signal "recording" without overwhelming the hero. Started as full-background, reduced to 5 tracks, then 3 tracks, finally positioned as a small centered window behind the text.
+- **Design rationale**: User wanted a small, subtle DAW session sketch to signal "recording" without overwhelming the hero. The playhead now moves at the rhythm of the typewriter cursor, not a sine wave.
 
-### Multicolor Splashes (Hero + Section Transitions)
+### Multicolor Splashes (Hero Background Only)
 - **Hero background** (`.hero::before`): 7 radial gradient splashes (purple, blue, green, amber, pink, violet, teal) at 12-25% opacity.
-- **Splash pulse animation**: 6s cycle synced with ripple — opacity 0.08 to 0.25, saturate 0.1 to 0.7.
-- **Section transitions** (`.section::before`): 3 faint splash accents (purple, blue, amber) at 8-12% opacity, same 6s pulse.
-- **Reduced glows**: User requested less glow overall — splash base opacity reduced from 0.6 to 0.2, max pulse from 0.7 to 0.25.
+- **Splash pulse animation**: 6s cycle — opacity 0.08 to 0.25, saturate 0.1 to 0.7.
+- **Section transitions**: Removed — no `.section::before` splash accents.
+- **Shimmer lines**: Removed — all 5 `.shimmer-line` divider elements deleted from components.
+- **Reduced glows**: User prefers darker, more matte look — splash base opacity at 0.08, max pulse at 0.25.
 
 ### Chinese Ink Brush Stroke Dividers
 - **All dividers** use the same flowing multicolor ink gradient with organic irregular edges:
   - Header bottom (`.site-header::after`)
-  - Hero caption top (`.hero-caption::before`)
-  - Signal button bottom (`.signal-button::after`)
   - Section bottom (`.section::after`)
   - Form inputs (`.input::after`, `.select::after`, `.textarea::after`)
   - Newsletter bottom (`.newsletter::after`)
   - Footer top (`footer::before`)
   - Audio project dividers (`.audio-project::before`)
+- **Removed dividers**: Hero caption (`.hero-caption::before` — section removed), Signal button (`.signal-button::after` — component removed).
 - **Technique**: `linear-gradient(90deg)` with 7 color stops (purple → blue → green → amber → pink → purple → transparent), `border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%`, `filter: blur(0.5px)`.
 - **Focus state**: Inputs increase opacity on focus (0.3 → 0.6).
 
 ### Button Design — Clean with Chinese Ink Underline
-- **All buttons** (`.nav-contact`, `.primary`, `.chips button`): Transparent background, no borders.
+- **Buttons** (`.nav-contact`, `.chips button`): Transparent background, no borders.
 - **Hover effect**: Multicolor gradient text + Chinese ink brush underline (`::after`).
 - **Underline**: 3px height, positioned 4px below text, fades in over 0.4s.
+- **Removed**: `.primary` button class — "Explore the work" CTA button removed from hero.
 - **Design evolution**: Started with sketchy borders → coffee-stain splashes → Chinese ink blob → thin underline. User wanted the thin underline beneath the text.
 
 ### Gradient Styling
@@ -197,23 +206,19 @@ horizons-export/
 - **Empty state**: Rough scratched border (`.empty::before`).
 - **Cookies dialog**: Rough scratched border (`.cookies::before`).
 
-### "feel" Word Animations (PAUSED)
-- **4 effects implemented**: Shiver, Explode, Font Change, Typewriter
-- **CSS location**: `apps/web/src/index.css` — lines 425-574
-- **JavaScript sequencer**: `apps/web/src/components/home/studio.tsx` — `useFeelSequencer` hook with `FEEL_EFFECTS` config array
-- **Current state**: **PAUSED** — `useFeelSequencer(feelRef)` is commented out in the `Hero` component with a TODO note
-- **To re-enable**: Uncomment the line `// useFeelSequencer(feelRef);` in the `Hero` component
-- **Effects configuration**:
-  - Shiver: 2000ms, letters tremble with small translate/rotate movements
-  - Explode: 2200ms, letters scatter outward with scale and opacity
-  - Font: 2000ms, switches through different font styles
-  - Typewriter: 2000ms, letters reveal one by one using clip-path
-- **Mobile adjustments**: Separate keyframes for shiver and explode on screens < 760px
-- **Reduced motion**: All animations disabled via `@media (prefers-reduced-motion: reduce)`
+### "feel" Word Animations (REMOVED)
+- **Status**: Completely removed during project cleanup (2026-11-19).
+- **What was removed**: The 4-effect sequencer (Shiver, Explode, Font Change, Typewriter), the `useFeelSequencer` hook, `FEEL_EFFECTS` config array, and all related CSS keyframes (~150 lines).
+- **Replaced by**: The "Across Mediums" typewriter animation on `h1 em` — a different concept that types out the emphasis text with synced DAW playhead.
 
 ### Page Layout Order (home.tsx)
-- **Current order**: Hero → Portfolio → Services → About → Journal → Contact → Newsletter
-- **Portfolio moved**: User requested "02 / Listen closely" (Portfolio) to appear immediately after the Hero section.
+- **Current order**: Hero → Portfolio → Services → About → Contact → Newsletter
+- **Removed sections**: 
+  - **Journal/Studio Notes** — completely removed (component, copy, navigation link, route import)
+  - **Signal Demo** — audio tone button removed (component, copy, CSS)
+- **Portfolio**: Appears immediately after Hero. No "02 / LISTEN CLOSELY" label, no "Made to be heard." heading, no "HEADPHONES RECOMMENDED" sublabel.
+- **Section spacing**: `padding: 60px 5%` (reduced from `105px 5%`) — sections sit closer together.
+- **No decorative dividers**: Shimmer lines between sections removed.
 
 ### Color Palette Evolution
 - Started with vibrant rainbow (ruby, amber, teal, cobalt, purple, magenta)
@@ -221,35 +226,31 @@ horizons-export/
 - Tried deep sea cathedral palette, opaque pastels, uneven color splashes
 - **Final decision**: Soft pastel gradient (#c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa) applied consistently everywhere
 
-### Header Animated Shimmer Lines
-- Two animated gradient lines sweep across the header bottom and section dividers.
-- Uses the same pastel color palette, 14s and 18s animation durations.
-- Base scratch mark layer + animated color overlay.
-
 ## Copy Management System (copy.ts)
 - **File**: `apps/web/src/copy.ts` — **ALL website text is centralized here.**
 - **How it works**: Every component imports `siteCopy` from `@/copy` and reads text from it instead of hardcoding strings.
 - **How to edit**: Open `copy.ts`, find the section you want to change (clearly labeled with comments), and edit the text inside the quotes. Save and the site updates.
-- **Structure**: `siteCopy` object has properties for each section: `header`, `hero`, `services`, `portfolio`, `about`, `journal`, `contact`, `newsletter`, `footer`, `cookies`, `signal`.
+- **Structure**: `siteCopy` object has properties for each section: `header`, `hero`, `services`, `portfolio`, `about`, `contact`, `newsletter`, `footer`, `cookies`.
+- **Removed from copy.ts**: `journal` block, `signal` block, hero `ctaButton`, hero `caption`, hero `scrollText`, portfolio `label`, portfolio `heading`, portfolio `sublabel`.
 - **Adding projects**: Edit `siteCopy.portfolio.projects` array — copy an existing project block and change the values.
-- **Adding journal articles**: Edit `siteCopy.journal.articles` array — copy an existing article block and change the values.
 - **Line breaks**: Use `\n` inside strings for line breaks (e.g., `"Line one.\nLine two."`).
 - **Do NOT edit text in `studio.tsx` or `root.tsx`** — all text should come from `copy.ts`.
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **GitHub + GitHub Actions are fully set up and working** — push to `master`, `build` branch auto-updates, Hostinger auto-deploys
-- **Hostinger-Git connection**: ✅ Confirmed working as of 2026-11-19
-- User may want to **experiment with the "feel" animations** — paused for now, ready to re-enable
+- **GitHub + GitHub Actions**: Workflow file created (`.github/workflows/deploy.yml`), needs SSH secrets added to GitHub repo settings before auto-deploy works
+- **Hostinger SSH**: Port 65002, user `u370713035`, web root `public_html`
+- **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
 - **Typography**: Cormorant Garamond unified everywhere. User rejected Architects Daughter (too casual) in favor of elegant serif.
-- **Ripple animation**: 6s cycle is the heartbeat of the hero — text, DAW playhead, and splashes all sync to this rhythm.
+- **Typewriter animation**: 12s cycle on "Across Mediums" — text reveals letter by letter with synced DAW playhead. This replaced the ripple-lake animation.
 - **Glow levels**: User prefers darker, more matte look with patches of pitch black. All glows are reduced (splashes at 0.08-0.25 opacity, minimal text shadows).
-- **DAW sketch**: Small, subtle, centered behind text — signals "recording" without dominating.
+- **DAW sketch**: Small, subtle, centered behind text — playhead synced to typewriter rhythm (ease-out, not sine wave).
+- **User prefers minimal, concise UI** — removes labels, captions, and decorative elements that don't add value. Wants eye to go directly to the work.
+- **Project cleanup**: All template bloat removed. Only 5 npm packages. No shadcn, no Radix UI, no Framer Motion, no Three.js. Pure CSS animations.
 - Website copy documents are saved at:
   - `Website Copy - Simple.txt`
   - `Website Copy - Edit This.html`
-- Mosaico Folder reorganization logs are saved at: `Source Material\Logs for AI\results2.txt`
 
 ## Quick Commands Reference
 ```powershell
