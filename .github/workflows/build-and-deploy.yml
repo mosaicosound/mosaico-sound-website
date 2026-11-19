@@ -20,14 +20,10 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: |
-          cd apps/web
-          npm ci
+        run: npm ci
 
       - name: Build project
-        run: |
-          cd apps/web
-          npm run build
+        run: npm run build
 
       - name: Deploy built files to build branch
         run: |
