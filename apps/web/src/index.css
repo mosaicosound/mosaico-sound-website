@@ -123,6 +123,159 @@ em {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  padding: 0 4px;
+  overflow: visible;
+}
+
+/* ============================================
+   "feel" word — Sequential multi-effect animation
+   Classes: .feel-shiver, .feel-explode, .feel-font, .feel-typewriter
+   JS toggles these classes on h1 em .feel-word (span) to sequence effects.
+   ============================================ */
+
+h1 em .feel-word {
+  display: inline-block;
+  /* No default animation — JS applies effect classes */
+}
+
+/* --- Effect 1: Shiver (letters tremble like they're cold) --- */
+@keyframes feel-shiver {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  5%   { transform: translate(-1.5px, 0.5px) rotate(-0.5deg); }
+  10%  { transform: translate(1px, -0.5px) rotate(0.5deg); }
+  15%  { transform: translate(-1px, 1px) rotate(-0.3deg); }
+  20%  { transform: translate(1.5px, -0.5px) rotate(0.4deg); }
+  25%  { transform: translate(-0.5px, 0.5px) rotate(-0.6deg); }
+  30%  { transform: translate(1px, 1px) rotate(0.3deg); }
+  35%  { transform: translate(-1.5px, -0.5px) rotate(-0.4deg); }
+  40%  { transform: translate(0.5px, 0.5px) rotate(0.5deg); }
+  45%  { transform: translate(-1px, -1px) rotate(-0.3deg); }
+  50%  { transform: translate(1.5px, 0.5px) rotate(0.6deg); }
+  55%  { transform: translate(-0.5px, -0.5px) rotate(-0.5deg); }
+  60%  { transform: translate(1px, 1px) rotate(0.4deg); }
+  65%  { transform: translate(-1.5px, 0.5px) rotate(-0.6deg); }
+  70%  { transform: translate(0.5px, -1px) rotate(0.3deg); }
+  75%  { transform: translate(-1px, 0.5px) rotate(-0.4deg); }
+  80%  { transform: translate(1.5px, -0.5px) rotate(0.5deg); }
+  85%  { transform: translate(-0.5px, 1px) rotate(-0.3deg); }
+  90%  { transform: translate(1px, -0.5px) rotate(0.6deg); }
+  95%  { transform: translate(-1px, 0.5px) rotate(-0.5deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+h1 em .feel-word.feel-shiver {
+  animation: feel-shiver 0.4s linear infinite;
+}
+
+/* --- Effect 2: Explode (letters scatter outward, then reassemble) --- */
+@keyframes feel-explode {
+  0%   { transform: scale(1) translate(0, 0); opacity: 1; letter-spacing: 0; }
+  15%  { transform: scale(1.15) translate(0, -2px); opacity: 1; letter-spacing: 0.05em; }
+  40%  { transform: scale(1.4) translate(0, -8px); opacity: 0.6; letter-spacing: 0.4em; }
+  60%  { transform: scale(1.4) translate(0, -8px); opacity: 0.6; letter-spacing: 0.4em; }
+  85%  { transform: scale(1.1) translate(0, -1px); opacity: 1; letter-spacing: 0.05em; }
+  100% { transform: scale(1) translate(0, 0); opacity: 1; letter-spacing: 0; }
+}
+
+h1 em .feel-word.feel-explode {
+  animation: feel-explode 2s ease-in-out forwards;
+}
+
+/* --- Effect 3: Font morph (switches to a dramatic different font style) --- */
+@keyframes feel-font {
+  0%   { font-family: inherit; font-weight: 500; font-style: normal; transform: scaleX(1); }
+  20%  { font-family: 'Times New Roman', serif; font-weight: 400; font-style: italic; transform: scaleX(1.05); }
+  50%  { font-family: 'Courier New', monospace; font-weight: 700; font-style: normal; transform: scaleX(0.95); }
+  80%  { font-family: 'Georgia', serif; font-weight: 700; font-style: italic; transform: scaleX(1.02); }
+  100% { font-family: inherit; font-weight: 500; font-style: normal; transform: scaleX(1); }
+}
+
+h1 em .feel-word.feel-font {
+  animation: feel-font 2s ease-in-out forwards;
+}
+
+/* --- Effect 4: Typewriter (letters reveal one by one) --- */
+@keyframes feel-typewriter-clip {
+  0%   { clip-path: inset(0 100% 0 0); }
+  25%  { clip-path: inset(0 75% 0 0); }
+  50%  { clip-path: inset(0 50% 0 0); }
+  75%  { clip-path: inset(0 25% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+
+h1 em .feel-word.feel-typewriter {
+  clip-path: inset(0 100% 0 0);
+  animation: feel-typewriter-clip 1.5s steps(4, end) forwards;
+  border-right: 3px solid #fff;
+  padding-right: 2px;
+}
+
+h1 em .feel-word.feel-typewriter.done {
+  animation: none;
+  clip-path: inset(0 0% 0 0);
+  border-right: 3px solid transparent;
+}
+
+/* --- Reduced motion: disable all "feel" animations --- */
+@media (prefers-reduced-motion: reduce) {
+  h1 em .feel-word.feel-shiver,
+  h1 em .feel-word.feel-explode,
+  h1 em .feel-word.feel-font,
+  h1 em .feel-word.feel-typewriter {
+    animation: none !important;
+    clip-path: none !important;
+    border-right: none !important;
+    transform: none !important;
+    letter-spacing: normal !important;
+    opacity: 1 !important;
+  }
+}
+
+/* --- Mobile adjustments for "feel" animations --- */
+@media (max-width: 760px) {
+  h1 em .feel-word.feel-shiver {
+    animation-name: feel-shiver-mobile;
+  }
+  @keyframes feel-shiver-mobile {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    5%   { transform: translate(-1px, 0.3px) rotate(-0.4deg); }
+    10%  { transform: translate(0.7px, -0.3px) rotate(0.4deg); }
+    15%  { transform: translate(-0.7px, 0.7px) rotate(-0.2deg); }
+    20%  { transform: translate(1px, -0.3px) rotate(0.3deg); }
+    25%  { transform: translate(-0.3px, 0.3px) rotate(-0.5deg); }
+    30%  { transform: translate(0.7px, 0.7px) rotate(0.2deg); }
+    35%  { transform: translate(-1px, -0.3px) rotate(-0.3deg); }
+    40%  { transform: translate(0.3px, 0.3px) rotate(0.4deg); }
+    45%  { transform: translate(-0.7px, -0.7px) rotate(-0.2deg); }
+    50%  { transform: translate(1px, 0.3px) rotate(0.5deg); }
+    55%  { transform: translate(-0.3px, -0.3px) rotate(-0.4deg); }
+    60%  { transform: translate(0.7px, 0.7px) rotate(0.3deg); }
+    65%  { transform: translate(-1px, 0.3px) rotate(-0.5deg); }
+    70%  { transform: translate(0.3px, -0.7px) rotate(0.2deg); }
+    75%  { transform: translate(-0.7px, 0.3px) rotate(-0.3deg); }
+    80%  { transform: translate(1px, -0.3px) rotate(0.4deg); }
+    85%  { transform: translate(-0.3px, 0.7px) rotate(-0.2deg); }
+    90%  { transform: translate(0.7px, -0.3px) rotate(0.5deg); }
+    95%  { transform: translate(-0.7px, 0.3px) rotate(-0.4deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+  }
+  h1 em .feel-word.feel-explode {
+    animation-name: feel-explode-mobile;
+  }
+  @keyframes feel-explode-mobile {
+    0%   { transform: scale(1) translate(0, 0); opacity: 1; letter-spacing: 0; }
+    15%  { transform: scale(1.1) translate(0, -1px); opacity: 1; letter-spacing: 0.03em; }
+    40%  { transform: scale(1.25) translate(0, -4px); opacity: 0.7; letter-spacing: 0.25em; }
+    60%  { transform: scale(1.25) translate(0, -4px); opacity: 0.7; letter-spacing: 0.25em; }
+    85%  { transform: scale(1.05) translate(0, -0.5px); opacity: 1; letter-spacing: 0.03em; }
+    100% { transform: scale(1) translate(0, 0); opacity: 1; letter-spacing: 0; }
+  }
+  h1 em .feel-word.feel-typewriter {
+    border-right: 2px solid #fff;
+  }
+  h1 em .feel-word.feel-typewriter.done {
+    border-right: 2px solid transparent;
+  }
 }
 
 .sonic-scene { position: absolute; inset: 20px -18% 0 20%; opacity: .65; pointer-events: none; }

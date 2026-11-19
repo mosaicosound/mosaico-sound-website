@@ -38,7 +38,7 @@ export default function App() {
 				<div id="root">
 					<header className="site-header">
 						<div className="header-lines"></div>
-						<a className="brand" href="/">mosaico sound<span>®</span></a>
+      <a className="brand" href="/"><em>mosaico sound</em><span>®</span></a>
 						<nav aria-label="Main navigation">
 							<a href="/#work">Work</a>
 							<a href="/#services">Services</a>

@@ -108,12 +108,63 @@ export function SonicScene() {
 	return <div className="sonic-scene" ref={host} aria-hidden="true" />;
 }
 
+// Sequential animation controller for the "feel" word
+// Easy to tweak: add, remove, reorder effects or change durations
+const FEEL_EFFECTS = [
+	{ name: 'shiver', duration: 2000 },
+	{ name: 'explode', duration: 2200 },
+	{ name: 'font', duration: 2000 },
+	{ name: 'typewriter', duration: 2000 },
+];
+
+function useFeelSequencer(ref: React.RefObject<HTMLElement | null>) {
+	useEffect(() => {
+		const el = ref.current;
+		if (!el) return;
+
+		// Respect reduced motion preference
+		const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (reduced) return;
+
+		let index = 0;
+
+		function applyNextEffect() {
+			// Clear all effect classes
+			el.classList.remove('feel-shiver', 'feel-explode', 'feel-font', 'feel-typewriter', 'done');
+
+			const effect = FEEL_EFFECTS[index];
+			el.classList.add(`feel-${effect.name}`);
+
+			// Move to next effect for the next call
+			index = (index + 1) % FEEL_EFFECTS.length;
+
+			// Schedule the next effect after the current one's duration
+			const nextTimer = window.setTimeout(applyNextEffect, effect.duration);
+			timers.push(nextTimer);
+		}
+
+		const timers: number[] = [];
+
+		// Start the sequence: apply first effect immediately
+		applyNextEffect();
+
+		return () => {
+			timers.forEach(clearTimeout);
+			el.classList.remove('feel-shiver', 'feel-explode', 'feel-font', 'feel-typewriter', 'done');
+		};
+	}, []);
+}
+
 export function Hero() {
+	const feelRef = useRef<HTMLElement>(null);
+	// TODO: re-enable animations — useFeelSequencer(feelRef);
+	// useFeelSequencer(feelRef);
+
 	return (
 		<section className="hero">
 			<SonicScene />
 			<div className="eyebrow">INDEPENDENT SOUND PRACTICE ADVERTISING / FILM / GAMES</div>
-			<h1>Sound that<br/>makes you <em>feel.</em></h1>
+			<h1>Sonic Artistry<br/><em>Across</em> <em>Mediums</em></h1>
 			<div className="hero-bottom">
 				<p>Precision in the edit. Emotion in the mix. Distinctive sound for stories, brands and worlds.</p>
 				<a className="primary" href="#work">Explore the work <ArrowUpRight size={18}/></a>
@@ -274,7 +325,7 @@ export function Newsletter() {
 export function Footer() {
 	return (
 		<footer>
-			<a className="brand" href="/">mosaico sound<span>®</span></a>
+   <a className="brand" href="/"><em>mosaico sound</em><span>®</span></a>
 			<span className="mono">INDEPENDENT SOUND. INTENTIONAL IMPACT.</span>
 			<button onClick={openCookiePreferences}>Cookie settings</button>
 			<span>© 2026 MOSAICO SOUND</span>
