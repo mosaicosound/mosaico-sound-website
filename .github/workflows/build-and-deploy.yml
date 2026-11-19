@@ -1,0 +1,59 @@
+name: Build and Deploy to Hostinger
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          cd apps/web
+          npm ci
+
+      - name: Build project
+        run: |
+          cd apps/web
+          npm run build
+
+      - name: Deploy built files to build branch
+        run: |
+          git config --global user.name "Junie"
+          git config --global user.email "junie@jetbrains.com"
+          
+          # Create a temporary directory for the build output
+          mkdir deploy
+          cp -r dist/apps/web/client/* deploy/
+          
+          # Check if build branch exists
+          if git ls-remote --heads origin build | grep build; then
+            git fetch origin build
+            git checkout build
+            git reset --hard origin/build
+          else
+            git checkout --orphan build
+            git rm -rf .
+          fi
+          
+          # Clear and copy built files
+          git rm -rf . 2>/dev/null || true
+          cp -r deploy/* .
+          cp deploy/.* . 2>/dev/null || true
+          
+          # Commit and push
+          git add -A
+          git commit -m "Build: Auto-deploy from ${{ github.sha }}" || echo "No changes to commit"
+          git push origin build --force
