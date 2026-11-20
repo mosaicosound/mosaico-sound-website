@@ -30,7 +30,7 @@ jobs:
           username: u370713035
           password: 'We7SfXY17TaThQxJrz1&'
           local-dir: dist/apps/web/client/
-          server-dir: /domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/
+          server-dir: domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/
           protocol: ftp
           port: 21
           cleanup: true
