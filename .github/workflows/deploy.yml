@@ -23,24 +23,13 @@ jobs:
         run: npm run build
         working-directory: apps/web
 
-      - name: Clean old files on Hostinger
-        uses: appleboy/ssh-action@v1
+      - name: Upload build to Hostinger via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
         with:
-          host: 157.173.209.67
-          port: 65002
           username: u370713035
-          password: A@Cu%kb8!Qcg^@7MymCY
-          script: |
-            cd public_html
-            rm -rf assets
-            rm -f index.html __spa-fallback.html favicon.png robots.txt sitemap.xml
-
-      - name: Upload build to Hostinger
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: 157.173.209.67
+          server: 157.173.209.67
           port: 65002
-          username: u370713035
           password: A@Cu%kb8!Qcg^@7MymCY
-          source: "dist/apps/web/client/*"
-          target: "public_html"
+          local_path: dist/apps/web/client/
+          remote_path: /public_html
+          sftp_only: true
