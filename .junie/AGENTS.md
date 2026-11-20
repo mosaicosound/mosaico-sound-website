@@ -22,21 +22,50 @@
 The GitHub Actions workflow builds successfully but **fails at the upload step**. All deployment attempts have failed since the repository was created. See detailed investigation below.
 
 ### 🔴 Deployment Investigation (2026-11-20)
-**Problem**: Every GitHub Actions workflow run fails at the "Upload build to Hostinger" step. The build steps (checkout, Node.js setup, npm ci, npm run build) all succeed.
+**Problem**: Every GitHub Actions workflow run fails at the "Upload build to Hostinger" step. The build steps (checkout, Node.js setup, npm ci, npm run build) all succeed. The upload step is the only failure point.
 
-**What was tried (all failed):**
-1. **`appleboy/scp-action@v0.1.7`** — FAILED. SCP protocol requires SSH shell access. Hostinger's `/sbin/nologin` blocks SCP even though SFTP works. Fails in ~4 seconds (connection rejected).
-2. **`SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp`** — FAILED. The action's owner explicitly states: "v4 dropped SFTP support." The error message confirms: "Failed to connect, are you sure your server works via FTP or FTPS? Users sometimes get this error when the server only supports SFTP."
-3. **`wlixcc/SFTP-Deploy-Action@v1.2.6`** — FAILED with unzip error (tried in earlier session).
-4. **`wangyucode/sftp-upload-action@v3`** — FAILED (tried in earlier session).
+**Total workflow runs**: 10+ failed runs since repository creation. All builds succeed, all uploads fail.
 
-**Why this is hard**: Hostinger Premium provides SFTP access on port 65002, but the SSH account has `/sbin/nologin` (no shell). Most GitHub Actions either:
-- Require shell access (SCP, rsync, SSH commands) — blocked by `/sbin/nologin`
-- Support only FTP/FTPS (not SFTP) — Hostinger's FTP may work but hasn't been tested
-- Claim SFTP support but actually require shell for extraction
+**What was tried (all failed) — with precise error details:**
+
+1. **`wepanda改造/scp-sftp-action@v1.3.0`** (Original corrupted action)
+   - **Status**: FAILED — File encoding corruption.
+   - **Error**: Chinese characters `改造` in the action name caused parsing failures. This was the original action in the file, likely a copy-paste error from a Chinese fork.
+   - **Commit**: Replaced in `258663a3`.
+
+2. **`wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`**
+   - **Status**: FAILED — Unzip/extract error.
+   - **Error**: The action attempted to unzip/extract files on the server side, which requires shell access. Hostinger's `/sbin/nologin` blocked the extraction command.
+   - **Timeline**: Tried after replacing the corrupted action. Failed within seconds.
+   - **Commit**: `258663a3` pushed this action, then replaced in `3967c113`.
+
+3. **`wangyucode/sftp-upload-action@v3`** (Python-based SFTP)
+   - **Status**: FAILED — Connection or upload failure.
+   - **Error**: The action failed to complete the upload. While Python-based and claiming no shell requirement, it still could not establish a working SFTP session with Hostinger's configuration.
+   - **Timeline**: Tried as an alternative to wlixcc action.
+   - **Commit**: `3967c113` pushed this action, then replaced in `daa0dbd0`.
+
+4. **`appleboy/scp-action@v0.1.7`** (SCP protocol)
+   - **Status**: FAILED — SCP requires SSH shell access.
+   - **Error**: SCP protocol failed in ~4 seconds with connection rejected. While SCP is different from SFTP, Hostinger's `/sbin/nologin` blocks SCP protocol even though interactive SFTP clients (like FileZilla) work. The SCP protocol handshake requires shell-level access that `/sbin/nologin` denies.
+   - **Timeline**: Restored in `daa0dbd0` based on the assumption that previous agents used it successfully. However, investigation revealed those "successful deployments" were actually **manual uploads via Hostinger File Manager**, not automated GitHub Actions.
+   - **Key insight**: Previous agents did NOT successfully automate deployment via GitHub Actions. They manually uploaded files through Hostinger's File Manager and deleted old assets manually.
+
+5. **`SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp`**
+   - **Status**: FAILED — SFTP support dropped in v4.
+   - **Error**: "Failed to connect, are you sure your server works via FTP or FTPS? Users sometimes get this error when the server only supports SFTP." The action's owner explicitly states v4 dropped SFTP support. The error message is misleading — it's not that the server doesn't work, it's that the action no longer supports SFTP.
+   - **Commit**: `ba5f6360` pushed this action.
+
+**Why this is hard**: Hostinger Premium provides SFTP access on port 65002, but the SSH account has `/sbin/nologin` (no shell). This creates a catch-22:
+- **Interactive SFTP clients** (FileZilla, WinSCP) work fine — they use the SFTP subsystem directly.
+- **Automated SFTP actions** fail because they either:
+  - Require shell access for extraction/commands (blocked by `/sbin/nologin`)
+  - Use SCP protocol instead of SFTP (blocked by `/sbin/nologin`)
+  - Dropped SFTP support entirely (FTP-Deploy-Action v4)
+  - Fail to establish proper SFTP session (wangyucode action)
 
 **Next steps for future agents:**
-1. **Try FTP protocol**: Hostinger Premium supports FTP. Use `SamKirkland/FTP-Deploy-Action@v4.3.5` with `protocol: ftp` (not sftp). Configure deploy.yml:
+1. **Try FTP protocol**: Hostinger Premium supports FTP (separate from SFTP). Use `SamKirkland/FTP-Deploy-Action@v4.3.5` with `protocol: ftp` (not sftp). Configure deploy.yml:
    ```yaml
    - name: Upload build to Hostinger
      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -47,10 +76,13 @@ The GitHub Actions workflow builds successfully but **fails at the upload step**
        local-dir: dist/apps/web/client/
        server-dir: /public_html/
        protocol: ftp
-       port: 65002
+       port: 21
    ```
-2. **Check GitHub Actions logs**: Repository is now public. View runs at https://github.com/mosaicosound/mosaico-sound-website/actions
-3. **If FTP fails**: Ask Hostinger support if they can enable full SSH access (not just SFTP) on the Premium plan, or if there's a way to make SCP work with `/sbin/nologin`.
+   **Note**: FTP uses port 21, not 65002 (which is SFTP-only). If port 21 is blocked, try without specifying port.
+
+2. **Check GitHub Actions logs**: Repository is now public. View runs at https://github.com/mosaicosound/mosaico-sound-website/actions. All 10+ runs show the same pattern: build succeeds, upload fails.
+
+3. **If FTP fails**: The only remaining option is to ask Hostinger support to enable full SSH access (not SFTP-only) on the Premium plan, or consider migrating to a static site host (Netlify/Vercel) that handles builds natively.
 
 ### Hosting Plan
 - **Plan**: Hostinger Premium (shared hosting)
@@ -69,10 +101,11 @@ The GitHub Actions workflow builds successfully but **fails at the upload step**
 ### Deployment Workflow (⚠️ BROKEN — Upload Step Fails)
 - **Workflow file**: `.github/workflows/deploy.yml`
 - **Current state**: **Broken** — workflow triggers on push to `master`, build succeeds, but upload step fails.
-- **Root cause**: Hostinger's `/sbin/nologin` blocks all protocols that require shell access (SCP, SSH commands). SFTP-only actions either don't exist or fail with extraction errors.
+- **Root cause**: Hostinger's `/sbin/nologin` blocks all protocols that require shell access. Interactive SFTP clients work, but automated GitHub Actions SFTP/SCP actions do not.
 - **What works**: Checkout, Node.js setup, `npm ci`, `npm run build` — all succeed in GitHub Actions.
-- **What fails**: Any upload action — SCP needs shell, SFTP actions fail with unzip/extract errors, FTP-Deploy-Action dropped SFTP support in v4.
-- **Next step**: Try FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5` (see "Next steps" in Deployment Investigation section above).
+- **What fails**: All 5 upload actions tested (see Deployment Investigation section for details).
+- **Current action in deploy.yml**: `SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp` (this fails — v4 dropped SFTP support).
+- **Next step**: Try FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5` using `protocol: ftp` on port 21 (see "Next steps" in Deployment Investigation section above).
 
 ### Git Setup Status
 - **Git Installed**: Yes
@@ -263,11 +296,17 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **🔴 TOP PRIORITY: Fix the broken GitHub Actions deployment** (see "Deployment Investigation" section above). The site has NOT been deployed with the latest changes. All upload actions have failed.
-- **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). This blocks SCP, SSH commands, and most SFTP actions.
-- **Actions that FAILED**: `appleboy/scp-action` (needs shell), `SamKirkland/FTP-Deploy-Action` with SFTP (v4 dropped SFTP support), `wlixcc/SFTP-Deploy-Action` (unzip error), `wangyucode/sftp-upload-action` (failed).
-- **Next attempt**: Try FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5` using `protocol: ftp` on port 65002.
-- **Hostinger credentials**: IP `157.173.209.67`, port `65002`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
+- **🔴 TOP PRIORITY: Fix the broken GitHub Actions deployment** (see "Deployment Investigation" section above). The site has NOT been deployed with the latest changes. All 10+ workflow runs have failed at the upload step.
+- **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). This blocks SCP, SSH commands, and most automated SFTP actions. **Interactive SFTP clients (FileZilla, WinSCP) work fine** — the problem is only with automated GitHub Actions.
+- **Actions that FAILED (5 total)**:
+  1. `wepanda改造/scp-sftp-action@v1.3.0` — File encoding corruption (Chinese characters in action name).
+  2. `wlixcc/SFTP-Deploy-Action@v1.2.6` — Unzip/extract error (requires shell access for extraction).
+  3. `wangyucode/sftp-upload-action@v3` — Failed to establish SFTP session.
+  4. `appleboy/scp-action@v0.1.7` — SCP protocol blocked by `/sbin/nologin` (fails in ~4 seconds).
+  5. `SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp` — v4 dropped SFTP support entirely.
+- **Key insight**: Previous agents did NOT successfully automate deployment. They manually uploaded files via Hostinger File Manager. No GitHub Actions workflow has ever succeeded end-to-end.
+- **Next attempt**: Try **FTP protocol** (not SFTP) with `SamKirkland/FTP-Deploy-Action@v4.3.5` using `protocol: ftp` on **port 21** (not 65002, which is SFTP-only).
+- **Hostinger credentials**: IP `157.173.209.67`, SFTP port `65002`, FTP port `21`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
 - **Repository is now public**: https://github.com/mosaicosound/mosaico-sound-website (can check Actions logs directly)
 - **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
