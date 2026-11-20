@@ -24,12 +24,12 @@ jobs:
         working-directory: apps/web
 
       - name: Upload build to Hostinger
-        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: sftp://157.173.209.67:65002/
+          server: 157.173.209.67
           username: u370713035
           password: A@Cu%kb8!Qcg^@7MymCY
           local-dir: dist/apps/web/client/
           server-dir: /public_html/
-          protocol: sftp
-          port: 65002
+          protocol: ftp
+          port: 21
