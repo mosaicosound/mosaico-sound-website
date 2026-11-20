@@ -24,12 +24,12 @@ jobs:
         working-directory: apps/web
 
       - name: Upload build to Hostinger via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.6
+        uses: wangyucode/sftp-upload-action@v3
         with:
-          username: u370713035
-          server: 157.173.209.67
+          host: 157.173.209.67
           port: 65002
+          username: u370713035
           password: A@Cu%kb8!Qcg^@7MymCY
-          local_path: dist/apps/web/client/
-          remote_path: /public_html
-          sftp_only: true
+          localDir: dist/apps/web/client/
+          remoteDir: /public_html
+          forceUpload: true
