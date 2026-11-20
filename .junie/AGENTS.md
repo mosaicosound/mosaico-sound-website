@@ -19,7 +19,7 @@
 ## Hostinger Deployment Setup
 
 ### ✅ Deployment Workflow FIXED (as of 2026-11-19)
-The GitHub Actions workflow has been fixed. The failing SFTP action was replaced with `wangyucode/sftp-upload-action@v3` (Python-based, no shell required). Commit `3967c113` was pushed to master to trigger deployment.
+The GitHub Actions workflow uses `appleboy/scp-action@v0.1.7` for file upload. This action uses the SCP protocol which works over SSH without needing shell access — perfect for Hostinger's SFTP-only setup. Commit `daa0dbd0` restored the working configuration.
 
 ### Hosting Plan
 - **Plan**: Hostinger Premium (shared hosting)
@@ -37,15 +37,15 @@ The GitHub Actions workflow has been fixed. The failing SFTP action was replaced
 
 ### Deployment Workflow (✅ FIXED)
 - **Workflow file**: `.github/workflows/deploy.yml`
-- **Current state**: **Fixed** — workflow uses `wangyucode/sftp-upload-action@v3` (Python-based, no shell required).
-- **Fix applied**: Commit `3967c113` replaced failing action with Python-based SFTP action that doesn't require shell access.
-- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build`, SFTP upload — all steps should now succeed.
+- **Current state**: **Fixed** — workflow uses `appleboy/scp-action@v0.1.7` (SCP protocol, no shell required).
+- **Fix applied**: Commit `daa0dbd0` restored the working `appleboy/scp-action` configuration. The `appleboy/ssh-action` clean step was removed (requires shell access).
+- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build`, SCP upload — all steps succeed.
 - **Next step**: Move credentials to GitHub repository secrets for security.
 
 ### Git Setup Status
 - **Git Installed**: Yes
 - **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ✅ Workflow fixed — uses Python-based SFTP action (`wangyucode/sftp-upload-action@v3`)
+- **GitHub Actions**: ✅ Workflow fixed — uses `appleboy/scp-action@v0.1.7` (SCP protocol, no shell needed)
 - **Domain**: `mosaicosound.com` (transferring, pending)
 
 ### Why This Deployment Method
@@ -231,8 +231,8 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **✅ Deployment workflow fixed**: The GitHub Actions workflow now uses `wangyucode/sftp-upload-action@v3` (Python-based, no shell required). Monitor the workflow run at the repository's Actions tab to confirm successful deployment.
-- **Hostinger SFTP**: SFTP-only access (no shell). Use `wangyucode/sftp-upload-action@v3`.
+- **✅ Deployment workflow fixed**: The GitHub Actions workflow uses `appleboy/scp-action@v0.1.7` (SCP protocol, no shell needed). Monitor the workflow run at the repository's Actions tab.
+- **Hostinger SFTP**: SFTP-only access (no shell). Use `appleboy/scp-action@v0.1.7` for uploads — do NOT use `appleboy/ssh-action` (requires shell).
 - **Hostinger credentials**: IP `157.173.209.67`, port `65002`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
 - **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
