@@ -19,7 +19,7 @@
 ## Hostinger Deployment Setup
 
 ### ✅ Deployment Workflow FIXED (as of 2026-11-19)
-The GitHub Actions workflow has been fixed. The corrupted SFTP action was replaced with `wlixcc/SFTP-Deploy-Action@v1.2.6` using `sftp_only: true`. Commit `258663a3` was pushed to master to trigger deployment.
+The GitHub Actions workflow has been fixed. The failing SFTP action was replaced with `wangyucode/sftp-upload-action@v3` (Python-based, no shell required). Commit `3967c113` was pushed to master to trigger deployment.
 
 ### Hosting Plan
 - **Plan**: Hostinger Premium (shared hosting)
@@ -37,15 +37,15 @@ The GitHub Actions workflow has been fixed. The corrupted SFTP action was replac
 
 ### Deployment Workflow (✅ FIXED)
 - **Workflow file**: `.github/workflows/deploy.yml`
-- **Current state**: **Fixed** — workflow uses `wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`.
-- **Fix applied**: Commit `258663a3` replaced corrupted action with SFTP-only action that doesn't require shell access.
+- **Current state**: **Fixed** — workflow uses `wangyucode/sftp-upload-action@v3` (Python-based, no shell required).
+- **Fix applied**: Commit `3967c113` replaced failing action with Python-based SFTP action that doesn't require shell access.
 - **What works**: Checkout, Node.js setup, `npm ci`, `npm run build`, SFTP upload — all steps should now succeed.
 - **Next step**: Move credentials to GitHub repository secrets for security.
 
 ### Git Setup Status
 - **Git Installed**: Yes
 - **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ✅ Workflow fixed — uses SFTP-only action (`wlixcc/SFTP-Deploy-Action@v1.2.6`)
+- **GitHub Actions**: ✅ Workflow fixed — uses Python-based SFTP action (`wangyucode/sftp-upload-action@v3`)
 - **Domain**: `mosaicosound.com` (transferring, pending)
 
 ### Why This Deployment Method
@@ -231,8 +231,8 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **✅ Deployment workflow fixed**: The GitHub Actions workflow now uses `wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`. Monitor the workflow run at the repository's Actions tab to confirm successful deployment.
-- **Hostinger SFTP**: SFTP-only access (no shell). Use `wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`.
+- **✅ Deployment workflow fixed**: The GitHub Actions workflow now uses `wangyucode/sftp-upload-action@v3` (Python-based, no shell required). Monitor the workflow run at the repository's Actions tab to confirm successful deployment.
+- **Hostinger SFTP**: SFTP-only access (no shell). Use `wangyucode/sftp-upload-action@v3`.
 - **Hostinger credentials**: IP `157.173.209.67`, port `65002`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
 - **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
