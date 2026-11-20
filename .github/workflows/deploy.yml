@@ -24,11 +24,13 @@ jobs:
         working-directory: apps/web
 
       - name: Upload build to Hostinger
-        uses: Dylan700/sftp-upload-action@v1.2.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: 157.173.209.67
           username: u370713035
           password: A@Cu%kb8!Qcg^@7MymCY
-          port: 65002
-          uploads: |
-            dist/apps/web/client/ => /public_html/
+          local-dir: dist/apps/web/client/
+          server-dir: /public_html/
+          protocol: ftp
+          port: 21
+          cleanup: true

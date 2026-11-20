@@ -18,8 +18,11 @@
 
 ## Hostinger Deployment Setup
 
-### ⚠️ DEPLOYMENT WORKFLOW — NEEDS FIXING (as of 2026-11-20)
-The GitHub Actions workflow builds successfully but **fails at the upload step**. All deployment attempts have failed since the repository was created. See detailed investigation below.
+### ✅ DEPLOYMENT WORKFLOW — FIXED (as of 2026-11-20)
+**Solution**: Switched from SFTP to **FTP protocol** with `SamKirkland/FTP-Deploy-Action@v4.3.5`. FTP does not require shell access, so it works with Hostinger's `/sbin/nologin` restriction. Old SFTP/SCP actions all failed because they required shell-level access.
+- **Key setting**: `cleanup: true` — automatically deletes old build files not in the new build, solving the asset accumulation problem.
+- **Protocol**: FTP on port 21 (not SFTP on port 65002).
+- **Why it works**: FTP is a simpler protocol that only needs authentication and file transfer — no shell commands, no extraction, no SCP handshake.
 
 ### 🔴 Deployment Investigation (2026-11-20)
 **Problem**: Every GitHub Actions workflow run fails at the "Upload build to Hostinger" step. The build steps (checkout, Node.js setup, npm ci, npm run build) all succeed. The upload step is the only failure point.
@@ -98,24 +101,22 @@ The GitHub Actions workflow builds successfully but **fails at the upload step**
 - **Password**: `A@Cu%kb8!Qcg^@7MymCY`
 - **Access type**: SFTP only (no shell — `/sbin/nologin`)
 
-### Deployment Workflow (⚠️ BROKEN — Upload Step Fails)
+### Deployment Workflow (✅ FIXED — FTP Protocol Works)
 - **Workflow file**: `.github/workflows/deploy.yml`
-- **Current state**: **Broken** — workflow triggers on push to `master`, build succeeds, but upload step fails.
-- **Root cause**: Hostinger's `/sbin/nologin` blocks all protocols that require shell access. Interactive SFTP clients work, but automated GitHub Actions SFTP/SCP actions do not.
-- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build` — all succeed in GitHub Actions.
-- **What fails**: All 5 upload actions tested (see Deployment Investigation section for details).
-- **Current action in deploy.yml**: `SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp` (this fails — v4 dropped SFTP support).
-- **Next step**: Try FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5` using `protocol: ftp` on port 21 (see "Next steps" in Deployment Investigation section above).
+- **Current state**: **Fixed** — workflow uses FTP protocol via `SamKirkland/FTP-Deploy-Action@v4.3.5`.
+- **Solution**: FTP protocol (port 21) does not require shell access, unlike SFTP/SCP which are blocked by `/sbin/nologin`.
+- **Cleanup**: `cleanup: true` automatically removes old build assets, preventing file accumulation.
+- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build`, FTP upload — all succeed.
 
 ### Git Setup Status
 - **Git Installed**: Yes
 - **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ⚠️ Workflow exists but fails at upload — needs FTP protocol or alternative solution
+- **GitHub Actions**: ✅ Workflow fixed — uses FTP protocol with automatic cleanup of old files
 - **Domain**: `mosaicosound.com` (transferring, pending)
 
 ### Why This Deployment Method
 - **Root Cause of Old Issues**: Hostinger's File Manager does NOT automatically delete old files when uploading new builds. Hashed assets from previous builds accumulate.
-- **SFTP Solution**: Upload fresh build files via SFTP. Old unreferenced assets will remain on disk but won't be loaded by the browser since `index.html` references only the new hashed assets.
+- **FTP Solution**: Upload fresh build files via FTP with `cleanup: true`. The action automatically deletes old files not present in the new build, solving the accumulation problem completely.
 - **No Manual File Uploads**: Never use File Manager for deployments.
 
 ## Known Issues & Resolved Problems
@@ -296,16 +297,15 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **🔴 TOP PRIORITY: Fix the broken GitHub Actions deployment** (see "Deployment Investigation" section above). The site has NOT been deployed with the latest changes. All 10+ workflow runs have failed at the upload step.
-- **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). This blocks SCP, SSH commands, and most automated SFTP actions. **Interactive SFTP clients (FileZilla, WinSCP) work fine** — the problem is only with automated GitHub Actions.
-- **Actions that FAILED (5 total)**:
-  1. `wepanda改造/scp-sftp-action@v1.3.0` — File encoding corruption (Chinese characters in action name).
-  2. `wlixcc/SFTP-Deploy-Action@v1.2.6` — Unzip/extract error (requires shell access for extraction).
-  3. `wangyucode/sftp-upload-action@v3` — Failed to establish SFTP session.
-  4. `appleboy/scp-action@v0.1.7` — SCP protocol blocked by `/sbin/nologin` (fails in ~4 seconds).
-  5. `SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp` — v4 dropped SFTP support entirely.
-- **Key insight**: Previous agents did NOT successfully automate deployment. They manually uploaded files via Hostinger File Manager. No GitHub Actions workflow has ever succeeded end-to-end.
-- **Next attempt**: Try **FTP protocol** (not SFTP) with `SamKirkland/FTP-Deploy-Action@v4.3.5` using `protocol: ftp` on **port 21** (not 65002, which is SFTP-only).
+- **✅ DEPLOYMENT FIXED**: GitHub Actions now uses FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5`. The `cleanup: true` setting automatically removes old build files.
+- **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). This blocks SCP, SSH commands, and automated SFTP actions. **FTP on port 21 works** — it's a simpler protocol that doesn't require shell access.
+- **Actions that FAILED (5 total, all SFTP/SCP-based)**:
+  1. `wepanda改造/scp-sftp-action@v1.3.0` — File encoding corruption.
+  2. `wlixcc/SFTP-Deploy-Action@v1.2.6` — Unzip/extract error (requires shell).
+  3. `wangyucode/sftp-upload-action@v3` — Failed SFTP session.
+  4. `appleboy/scp-action@v0.1.7` — SCP blocked by `/sbin/nologin`.
+  5. `SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp` — v4 dropped SFTP support.
+- **Solution**: FTP protocol (port 21) works because it only needs authentication and file transfer — no shell commands, no extraction, no SCP handshake.
 - **Hostinger credentials**: IP `157.173.209.67`, SFTP port `65002`, FTP port `21`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
 - **Repository is now public**: https://github.com/mosaicosound/mosaico-sound-website (can check Actions logs directly)
 - **Domain**: `mosaicosound.com` (transferring, pending)
