@@ -24,11 +24,12 @@ jobs:
         working-directory: apps/web
 
       - name: Upload build to Hostinger
-        uses: appleboy/scp-action@v0.1.7
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
         with:
-          host: 157.173.209.67
-          port: 65002
+          server: sftp://157.173.209.67:65002/
           username: u370713035
           password: A@Cu%kb8!Qcg^@7MymCY
-          source: "dist/apps/web/client/*"
-          target: "public_html"
+          local-dir: dist/apps/web/client/
+          server-dir: /public_html/
+          protocol: sftp
+          port: 65002
