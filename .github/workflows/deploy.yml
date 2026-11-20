@@ -28,7 +28,7 @@ jobs:
         with:
           server: 157.173.209.67
           username: u370713035
-          password: 'We7SfXY17TaThQxJrz1&'
+          password: ${{ secrets.FTP_PASSWORD }}
           local-dir: dist/apps/web/client/
           server-dir: domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/
           protocol: ftp
