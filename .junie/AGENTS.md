@@ -18,8 +18,39 @@
 
 ## Hostinger Deployment Setup
 
-### ✅ Deployment Workflow FIXED (as of 2026-11-19)
-The GitHub Actions workflow uses `appleboy/scp-action@v0.1.7` for file upload. This action uses the SCP protocol which works over SSH without needing shell access — perfect for Hostinger's SFTP-only setup. Commit `daa0dbd0` restored the working configuration.
+### ⚠️ DEPLOYMENT WORKFLOW — NEEDS FIXING (as of 2026-11-20)
+The GitHub Actions workflow builds successfully but **fails at the upload step**. All deployment attempts have failed since the repository was created. See detailed investigation below.
+
+### 🔴 Deployment Investigation (2026-11-20)
+**Problem**: Every GitHub Actions workflow run fails at the "Upload build to Hostinger" step. The build steps (checkout, Node.js setup, npm ci, npm run build) all succeed.
+
+**What was tried (all failed):**
+1. **`appleboy/scp-action@v0.1.7`** — FAILED. SCP protocol requires SSH shell access. Hostinger's `/sbin/nologin` blocks SCP even though SFTP works. Fails in ~4 seconds (connection rejected).
+2. **`SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp`** — FAILED. The action's owner explicitly states: "v4 dropped SFTP support." The error message confirms: "Failed to connect, are you sure your server works via FTP or FTPS? Users sometimes get this error when the server only supports SFTP."
+3. **`wlixcc/SFTP-Deploy-Action@v1.2.6`** — FAILED with unzip error (tried in earlier session).
+4. **`wangyucode/sftp-upload-action@v3`** — FAILED (tried in earlier session).
+
+**Why this is hard**: Hostinger Premium provides SFTP access on port 65002, but the SSH account has `/sbin/nologin` (no shell). Most GitHub Actions either:
+- Require shell access (SCP, rsync, SSH commands) — blocked by `/sbin/nologin`
+- Support only FTP/FTPS (not SFTP) — Hostinger's FTP may work but hasn't been tested
+- Claim SFTP support but actually require shell for extraction
+
+**Next steps for future agents:**
+1. **Try FTP protocol**: Hostinger Premium supports FTP. Use `SamKirkland/FTP-Deploy-Action@v4.3.5` with `protocol: ftp` (not sftp). Configure deploy.yml:
+   ```yaml
+   - name: Upload build to Hostinger
+     uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+     with:
+       server: 157.173.209.67
+       username: u370713035
+       password: A@Cu%kb8!Qcg^@7MymCY
+       local-dir: dist/apps/web/client/
+       server-dir: /public_html/
+       protocol: ftp
+       port: 65002
+   ```
+2. **Check GitHub Actions logs**: Repository is now public. View runs at https://github.com/mosaicosound/mosaico-sound-website/actions
+3. **If FTP fails**: Ask Hostinger support if they can enable full SSH access (not just SFTP) on the Premium plan, or if there's a way to make SCP work with `/sbin/nologin`.
 
 ### Hosting Plan
 - **Plan**: Hostinger Premium (shared hosting)
@@ -35,17 +66,18 @@ The GitHub Actions workflow uses `appleboy/scp-action@v0.1.7` for file upload. T
 - **Password**: `A@Cu%kb8!Qcg^@7MymCY`
 - **Access type**: SFTP only (no shell — `/sbin/nologin`)
 
-### Deployment Workflow (✅ FIXED)
+### Deployment Workflow (⚠️ BROKEN — Upload Step Fails)
 - **Workflow file**: `.github/workflows/deploy.yml`
-- **Current state**: **Fixed** — workflow uses `appleboy/scp-action@v0.1.7` (SCP protocol, no shell required).
-- **Fix applied**: Commit `daa0dbd0` restored the working `appleboy/scp-action` configuration. The `appleboy/ssh-action` clean step was removed (requires shell access).
-- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build`, SCP upload — all steps succeed.
-- **Next step**: Move credentials to GitHub repository secrets for security.
+- **Current state**: **Broken** — workflow triggers on push to `master`, build succeeds, but upload step fails.
+- **Root cause**: Hostinger's `/sbin/nologin` blocks all protocols that require shell access (SCP, SSH commands). SFTP-only actions either don't exist or fail with extraction errors.
+- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build` — all succeed in GitHub Actions.
+- **What fails**: Any upload action — SCP needs shell, SFTP actions fail with unzip/extract errors, FTP-Deploy-Action dropped SFTP support in v4.
+- **Next step**: Try FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5` (see "Next steps" in Deployment Investigation section above).
 
 ### Git Setup Status
 - **Git Installed**: Yes
 - **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ✅ Workflow fixed — uses `appleboy/scp-action@v0.1.7` (SCP protocol, no shell needed)
+- **GitHub Actions**: ⚠️ Workflow exists but fails at upload — needs FTP protocol or alternative solution
 - **Domain**: `mosaicosound.com` (transferring, pending)
 
 ### Why This Deployment Method
@@ -231,9 +263,12 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **✅ Deployment workflow fixed**: The GitHub Actions workflow uses `appleboy/scp-action@v0.1.7` (SCP protocol, no shell needed). Monitor the workflow run at the repository's Actions tab.
-- **Hostinger SFTP**: SFTP-only access (no shell). Use `appleboy/scp-action@v0.1.7` for uploads — do NOT use `appleboy/ssh-action` (requires shell).
+- **🔴 TOP PRIORITY: Fix the broken GitHub Actions deployment** (see "Deployment Investigation" section above). The site has NOT been deployed with the latest changes. All upload actions have failed.
+- **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). This blocks SCP, SSH commands, and most SFTP actions.
+- **Actions that FAILED**: `appleboy/scp-action` (needs shell), `SamKirkland/FTP-Deploy-Action` with SFTP (v4 dropped SFTP support), `wlixcc/SFTP-Deploy-Action` (unzip error), `wangyucode/sftp-upload-action` (failed).
+- **Next attempt**: Try FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5` using `protocol: ftp` on port 65002.
 - **Hostinger credentials**: IP `157.173.209.67`, port `65002`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
+- **Repository is now public**: https://github.com/mosaicosound/mosaico-sound-website (can check Actions logs directly)
 - **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
 - **Typography**: Cormorant Garamond unified everywhere. User rejected Architects Daughter (too casual) in favor of elegant serif.
