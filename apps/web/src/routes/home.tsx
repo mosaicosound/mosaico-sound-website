@@ -1,4 +1,4 @@
-import { Hero, Services, Portfolio, About, Contact, Newsletter } from '@/components/home/studio';
+import { Hero, Portfolio, Partners, Hello } from '@/components/home/studio';
 
 export function meta() {
 	return [
@@ -9,5 +9,5 @@ export function meta() {
 }
 
 export default function HomePage() {
-	return <main><Hero/><div className="section-divider"/><Portfolio/><Services/><About/><Contact/><Newsletter/></main>;
+	return <main><Hero /><div className="section-divider" /><Portfolio /><Partners /><Hello /></main>;
 }

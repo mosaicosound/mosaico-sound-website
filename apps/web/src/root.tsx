@@ -10,7 +10,7 @@ import type { Route } from './+types/root';
 import stylesheet from '@/index.css?url';
 import { Footer, Cookies } from '@/components/home/studio';
 import { siteCopy } from '@/copy';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export const links: Route.LinksFunction = () => [
 	{ rel: 'stylesheet', href: stylesheet, precedence: 'default' },
@@ -29,6 +29,15 @@ export const links: Route.LinksFunction = () => [
 
 export default function App() {
 	const [menuOpen, setMenuOpen] = useState(false);
+	const [theme, setTheme] = useState(() => {
+		return localStorage.getItem('mosaico-theme') ?? 'light';
+	});
+
+	useEffect(() => {
+		document.documentElement.setAttribute('data-theme', theme);
+		localStorage.setItem('mosaico-theme', theme);
+	}, [theme]);
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
@@ -44,9 +53,14 @@ export default function App() {
       <a className="brand" href="/"><em>{siteCopy.header.brand}</em><span>®</span></a>
 						<nav aria-label="Main navigation">
 							<a href="/#work">{siteCopy.header.nav.work}</a>
-							<a href="/#services">{siteCopy.header.nav.services}</a>
-							<a href="/#about">{siteCopy.header.nav.about}</a>
-							<a className="nav-contact" href="/#contact">{siteCopy.header.nav.contact}</a>
+							<a className="nav-contact" href="/#hello">{siteCopy.header.nav.about}</a>
+							<button className="theme-toggle" aria-label="Toggle theme" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+								{theme === 'dark' ? (
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+								) : (
+									<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+								)}
+							</button>
 							<button className="hamburger" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
 								<span /><span /><span />
 							</button>
@@ -55,9 +69,7 @@ export default function App() {
 					{menuOpen && (
 						<div className="mobile-menu">
 							<a href="/#work" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.work}</a>
-							<a href="/#services" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.services}</a>
-							<a href="/#about" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.about}</a>
-							<a href="/#contact" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.contact}</a>
+							<a href="/#hello" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.about}</a>
 						</div>
 					)}
 					<Outlet />
