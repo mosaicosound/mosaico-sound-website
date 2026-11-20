@@ -9,5 +9,5 @@ export function meta() {
 }
 
 export default function HomePage() {
-	return <main><Hero/><Portfolio/><Services/><About/><Contact/><Newsletter/></main>;
+	return <main><Hero/><div className="section-divider"/><Portfolio/><Services/><About/><Contact/><Newsletter/></main>;
 }

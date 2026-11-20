@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: MOSAICO SOUND (independent sound practice for advertising, film, and games)
-- **Project Root**: `C:\dev\Mosaico\Source Material\Website AI Code\horizons-export`
+- **Project Root**: `C:\dev\Mosaico\horizons-export`
 - **Web App Directory**: `apps/web/`
 - **Live URL**: `https://sharp-paleturquoise-bat-64.hostingersite.com` (Hostinger demo/staging domain)
 - **Domain**: `mosaicosound.com` (transferring, pending)
@@ -161,121 +161,134 @@ horizons-export/
 ```
 **Removed**: `apps/pocketbase/` (entire directory), `plugins/` (80+ template files), `components/ui/` (50+ shadcn files), unused hooks, lib files, config files.
 
-## Design Decisions & Current State (as of 2026-11-19)
+## Design Decisions & Current State (as of 2026-11-20)
 
-### Overall Aesthetic: Scratch-Off Lottery Ticket + Chinese Ink Brush
+### Overall Aesthetic: Cathedral Mosaic + Hand-Drawn Sketch
 - **Core concept**: The website combines two visual languages:
-  1. **Scratch-off lottery ticket**: Letters coming to life as if revealed by scratching with a metal coin, with ink textures, scratch marks, and messy imperfections.
-  2. **Chinese ink brush strokes**: All dividers and button underlines use flowing multicolor ink gradients with organic irregular edges, like a brush stroke in calligraphy.
-- **Ink color**: `#0a0a0c` (deep black) with `--ink-light: #141418` as secondary dark tone.
+  1. **Cathedral stained glass mosaic**: Deep jewel tones (cobalt, ruby, emerald, gold, amethyst) on near-pure black background — like light piercing through stained glass in a dark cathedral.
+  2. **Hand-drawn sketch**: Shadows Into Light handwritten font + wavy SVG pen-stroke dividers — like quick pencil notes in a sketchbook.
+- **Ink color**: `#020203` (near-pure black) with `--ink-light: #0d0d10` as secondary dark tone.
 - **Paper color**: `#e8e6e1` (aged paper).
-- **Pure CSS implementation**: All effects use layered gradients, pseudo-elements, and text shadows — no JavaScript or external libraries for styling, well within Hostinger Premium limits.
+- **Pure CSS implementation**: All effects use layered gradients, pseudo-elements, SVG data-URIs, and text shadows — no JavaScript or external libraries for styling, well within Hostinger Premium limits.
 
 ### Background Texture (body::before)
 - A fixed overlay covers the entire viewport with:
   - **SVG noise texture**: `feTurbulence` filter (baseFrequency 0.85, 4 octaves) for authentic newspaper grain at 12% opacity.
-  - **Rust stains**: 6 organic radial gradient patches (brown/amber tones, 14-22% opacity).
+  - **Stained glass glow**: 5 organic radial gradient patches (cobalt, ruby, emerald, gold, amethyst at 0.1-0.15 opacity) — cathedral light patches.
+  - **Black void splashes**: 9 radial gradients (rgba(0,0,0) at 0.5-0.9 opacity) scattered across the viewport — like dark corners of a cathedral where light barely reaches.
   - **Paper fiber lines**: Very subtle repeating gradients (0.008 opacity horizontal, 0.005 opacity vertical).
   - **Ink splatter dots**: 7 tiny radial gradients (4-6% opacity) scattered across the surface.
 - Content elements (`.site-header`, `.hero`, `.section`, `.newsletter`, `footer`) sit above via `position: relative; z-index: 1;`
 
-### Typography — Unified Cormorant Garamond (Pearl Serif)
-- **Font choice**: **Cormorant Garamond** (Google Fonts, free) — elegant pearl serif, light italic.
-- **Applied to**: EVERYTHING on the site — body text, h1, h2, h3, `.brand`, navigation, buttons, section labels, `.mono` text, service numbers, portfolio categories, journal details, contact info, form labels and inputs, newsletter, footer, cookies dialog, empty state.
-- **CSS variable**: `--font-pearl: 'Cormorant Garamond', Georgia, serif`
+### Typography — Shadows Into Light (Handwritten Sketch)
+- **Font choice**: **Shadows Into Light** (Google Fonts, free) — thin, delicate handwritten font, like a fine-tip pen on paper.
+- **Applied to**: EVERYTHING on the site — all headings (h1, h2, h3), body text, `.brand`, navigation, buttons, section labels, `.mono` text, service numbers, portfolio categories, contact info, form labels and inputs, newsletter, footer, cookies dialog, mobile menu links.
+- **CSS variable**: `--font-sketch: 'Shadows Into Light', cursive`
 - **Font loaded via**: `root.tsx` Google Fonts link in `<head>` (not via @import in CSS, which doesn't work with Vite).
 - **Key styling**:
-  - `h1`: `clamp(68px, 10vw, 155px)`, weight 300, italic, letter-spacing 0.02em, max-width 900px.
-  - `h2`: `clamp(40px, 5vw, 72px)`, weight 300, italic, letter-spacing 0.02em.
-  - `h3`: 32px, weight 300, italic, letter-spacing 0.02em.
-  - `.brand`: 30px, weight 300.
-  - Body paragraphs: weight 300, line-height 1.8-1.9.
-  - Labels/captions: 11-13px, weight 300-400, no uppercase transform.
-- **Design evolution**: Started with Architects Daughter (handwritten) → user wanted elegance → Cormorant Garamond Light Italic for hero → then unified everything to Cormorant Garamond for consistency. Architects Daughter was tried but ultimately replaced.
+  - `h1`: `clamp(52px, 7.5vw, 110px)`, weight 400, italic, letter-spacing 0.02em, max-width 900px.
+  - `h2`: `clamp(40px, 5vw, 72px)`, weight 400, italic, letter-spacing 0.02em.
+  - `h3`: 32px, weight 400, italic, letter-spacing 0.02em.
+  - `.brand`: 30px, weight 400.
+  - Body paragraphs: weight 400, line-height 1.8-1.9.
+  - Labels/captions: 13-16px, weight 400, no uppercase transform.
+- **Design evolution**: Started with Cormorant Garamond (elegant serif) → user wanted scribbly feel → tried Amatic SC (too extreme) → rolled back → settled on Shadows Into Light for subtle sketchiness. Cormorant Garamond, Architects Daughter, and Inter fonts were removed.
 
 ### Hero Section — "Sonic Artistry Across Mediums"
-- **Headline**: `Sonic Artistry<br/><em>Across Mediums</em>`
-- **"Sonic Artistry"** (plain text): Pearl shimmer effect — slow gradient animation with soft iridescent colors.
-- **"Across Mediums"** (`<em>` tag): **Typewriter animation** — 12s cycle:
-  - Text reveals letter by letter via `width` animation (0→14ch) with `ease-out` timing
-  - Blinking cursor (`::after` pseudo-element) follows the text reveal
-  - Multicolor gradient letters are revealed as the cursor types
-  - Text is `opacity: 0` before reveal and during reset phase (no pre-show of untyped letters)
-  - Timing uses explicit keyframes matching the cubic ease-out curve (`1 - (1-raw)^3`)
-- **"mosaico sound"** in header/footer: Simple static `var(--accent-gradient)` — **untouched by typewriter animation**.
-- **Removed elements**: No "Explore the work" button, no caption line, no "SCROLL TO DISCOVER" link, no decorative divider.
+- **Headline**: `Sonic Artistry Across Mediums` (single line, no `<em>` split)
+- **Full headline**: Pearl shimmer effect — slow gradient animation with soft iridescent colors (`pearl-shimmer 8s ease-in-out infinite`).
+- **Eyebrow**: Empty string — "Independent sound practice" line removed. Hero section is compact.
+- **Subheading**: "Precision in the edit. Emotion in the mix. Distinctive sound for stories, brands and worlds." — stays still, no jumping.
+- **"mosaico sound"** in header/footer: Simple static `var(--accent-gradient)`.
+- **Removed elements**: No typewriter animation, no cursor, no DAW playhead canvas, no "Explore the work" button, no caption line, no "SCROLL TO DISCOVER" link, no decorative divider.
+- **Hero sizing**: Compact — padding `24px` (desktop), min-height `calc(100dvh - 200px)`. Mobile: padding `16px`, min-height `500px`.
 
-### Typewriter + DAW Playhead Sync
-- The DAW canvas playhead moves left-to-right in sync with the typewriter cursor
-- Same 12s cycle with matching `ease-out` cubic curve (`1 - (1-raw)^3`)
-- Playhead holds at end (~95%), then resets (~98-100%)
-- No sinusoidal motion — linear left-to-right progress matching the typing rhythm
-
-### DAW Session Sketch (SonicScene Component)
-- **Location**: `apps/web/src/components/home/studio.tsx` — `SonicScene` component.
-- **Visual**: 3 thin waveform tracks drawn on a 2D canvas, each with a unique pastel color (purple, blue, green).
-- **Playhead**: Thin vertical line that sweeps left-to-right synced with the 12s typewriter cycle.
-  - Follows cubic ease-out curve (`1 - (1-raw)^3`) — matches CSS typewriter timing exactly.
-  - Very subtle glow (40px width, 4% max opacity).
-  - Playhead line: 0.5px, 25% max opacity.
-  - Progress received as parameter, not calculated from sine wave.
-- **Positioning**: Centered behind the hero text at 45% width, 140px height, 35% opacity.
-- **Mobile**: 70% width, 100px height, 25% opacity.
-- **CSS class**: `.sonic-scene` — absolute positioned, pointer-events none, z-index 0.
-- **Design rationale**: User wanted a small, subtle DAW session sketch to signal "recording" without overwhelming the hero. The playhead now moves at the rhythm of the typewriter cursor, not a sine wave.
+### Hero Section — Removed Animations
+- **Typewriter animation**: Completely removed. The inconsistent width-based typewriter with overflow:hidden clipping was replaced with a static pearl shimmer gradient.
+- **Blinking cursor**: Removed. The cursor was inconsistent and tied to the typewriter cycle.
+- **DAW SonicScene canvas**: Completely removed. The canvas component (~145 lines) that drew waveform tracks and playhead has been deleted from `studio.tsx`.
+- **TV signal glitch**: Experimented with TV static/scanlines effect on "Mediums" — user didn't see the design, so the entire idea was killed.
+- **Spider-Verse glitch**: Briefly tried RGB channel splitting on "Mediums" — then reverted to match "Sonic Artistry" pearl shimmer.
+- **Current state**: Clean hero with static text and pearl shimmer gradient only. No canvas, no glitch, no typewriter, no playhead.
 
 ### Multicolor Splashes (Hero Background Only)
-- **Hero background** (`.hero::before`): 7 radial gradient splashes (purple, blue, green, amber, pink, violet, teal) at 12-25% opacity.
+- **Hero background** (`.hero::before`): Radial gradient splashes using deep stained glass palette (cobalt, ruby, emerald, gold, amethyst) at 12-25% opacity.
 - **Splash pulse animation**: 6s cycle — opacity 0.08 to 0.25, saturate 0.1 to 0.7.
 - **Section transitions**: Removed — no `.section::before` splash accents.
 - **Shimmer lines**: Removed — all 5 `.shimmer-line` divider elements deleted from components.
 - **Reduced glows**: User prefers darker, more matte look — splash base opacity at 0.08, max pulse at 0.25.
 
-### Chinese Ink Brush Stroke Dividers
-- **All dividers** use the same flowing multicolor ink gradient with organic irregular edges:
-  - Header bottom (`.site-header::after`)
-  - Section bottom (`.section::after`)
-  - Form inputs (`.input::after`, `.select::after`, `.textarea::after`)
-  - Newsletter bottom (`.newsletter::after`)
-  - Footer top (`footer::before`)
-  - Audio project dividers (`.audio-project::before`)
-- **Removed dividers**: Hero caption (`.hero-caption::before` — section removed), Signal button (`.signal-button::after` — component removed).
-- **Technique**: `linear-gradient(90deg)` with 7 color stops (purple → blue → green → amber → pink → purple → transparent), `border-radius: 50% 40% 60% 30% / 40% 50% 30% 60%`, `filter: blur(0.5px)`.
-- **Focus state**: Inputs increase opacity on focus (0.3 → 0.6).
+### Wavy SVG Pen-Stroke Dividers
+- **All dividers** use stacked wavy SVG lines — like quick pen strokes in a notebook:
+  - Header bottom (`.site-header::after`) — stained glass gradient (not wavy, clean ink brush)
+  - Section bottom (`.section::after`) — 3 stacked wavy lines
+  - Standalone hero-to-portfolio divider (`.section-divider`) — 3 stacked wavy lines
+  - Service separators (`.service::before`, `.service::after`) — wavy lines with stained glass gradient on hover
+  - Portfolio filter chips (`.chips button::after`) — wavy line with stained glass gradient on hover
+  - Audio project dividers (`.audio-project::before`) — wavy lines
+  - Journal vertical line (`details.service p::before`) — vertical wavy stroke
+  - Contact item separators (`.contact-item::before`) — wavy lines
+  - Form input underlines (`input::after`) — wavy line, pearl default, stained glass on focus
+  - Newsletter bottom (`.newsletter::after`) — **REMOVED** to keep footer clean
+  - Footer top (`footer::before`) — stained glass gradient (not wavy, clean ink brush)
+  - Nav contact link (`.nav-contact::after`) — wavy line with stained glass gradient on hover
+- **Technique**: SVG data-URI with quadratic bezier curves (`Q50`), 3-5 stacked layers with slight vertical offset and decreasing opacity (0.35 → 0.1). Each layer is a smooth, consistent curve; the sketchy density comes from layering, not irregularity.
+- **Interactive elements**: Services, chips, inputs, nav-contact reveal stained glass gradient colors on hover/focus.
+- **Design evolution**: Started with Chinese ink brush strokes → user wanted scribbly feel → tried irregular shaky paths (looked horrible) → settled on clean stacked wavy lines. Footer and header keep clean stained glass gradient lines for consistency.
 
-### Button Design — Clean with Chinese Ink Underline
+### Button Design — Clean with Wavy Underline
 - **Buttons** (`.nav-contact`, `.chips button`): Transparent background, no borders.
-- **Hover effect**: Multicolor gradient text + Chinese ink brush underline (`::after`).
-- **Underline**: 3px height, positioned 4px below text, fades in over 0.4s.
+- **Hover effect**: Stained glass gradient text + wavy SVG underline (`::after`).
+- **Underline**: Wavy pen-stroke style, fades in over 0.4s.
 - **Removed**: `.primary` button class — "Explore the work" CTA button removed from hero.
-- **Design evolution**: Started with sketchy borders → coffee-stain splashes → Chinese ink blob → thin underline. User wanted the thin underline beneath the text.
+- **Design evolution**: Started with sketchy borders → coffee-stain splashes → Chinese ink blob → thin underline → wavy SVG pen stroke.
 
-### Gradient Styling
-- **`--accent-gradient`**: `linear-gradient(90deg, #c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa)`
-- **`--accent-gradient-animate`**: Same + `#c9a0dc` at end for seamless loop.
-- **`--accent-color`**: `#c9a0dc` (soft periwinkle).
-- **Applies to**: Hero text, header/footer branding, section labels, link hovers, nav contact button, chip buttons, contact mono text, empty state SVG, form focus states, service hover reveal.
+### Gradient Styling — Deep Stained Glass Palette
+- **`--accent-gradient`**: `linear-gradient(90deg, #1e50a8, #a82040, #1a8a5a, #c8a430, #6a3090)` (cobalt → ruby → emerald → gold → amethyst)
+- **`--accent-gradient-animate`**: Same + `#1e50a8` at end for seamless loop.
+- **`--accent-color`**: `#1e50a8` (cobalt blue).
+- **Applies to**: Hero text shimmer, header/footer branding, section labels, link hovers, nav contact button, chip buttons, contact mono text, empty state SVG, form focus states, service hover reveal, mobile menu underlines.
+- **Color palette**:
+  - `#1e50a8` **Cobalt** — deep blue like Chartres Cathedral glass
+  - `#a82040` **Ruby** — rich red like stained glass garnet
+  - `#1a8a5a` **Emerald** — forest green like ancient mosaic tiles
+  - `#c8a430` **Gold** — warm light piercing through glass
+  - `#6a3090` **Amethyst** — deep purple like cathedral twilight
+- **Design evolution**: Started with soft pastel rainbow (#c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa) → user wanted cathedral mosaic → Deep Stained Glass jewel tones selected.
 
 ### Scratch Marks & Ink Effects
 - **h1::after, h2::after**: Scratch lines and ink splatter dots around headings via pseudo-elements.
-- **Service dividers**: Rough scratched lines with gradient hover reveal (`.service::before`, `.service::after`).
-- **Contact section**: SVG noise texture overlay + rust stain (`.contact::before`).
-- **Journal accordion**: Scratched vertical line beside text (`details.service p::before`).
-- **Contact items**: Scratched dividers above each item (`.contact-item::before`).
+- **Service dividers**: Wavy SVG lines with stained glass gradient hover reveal (`.service::before`, `.service::after`).
+- **Contact section**: SVG noise texture overlay + stained glass glow (`.contact::before`).
+- **Journal accordion**: Wavy vertical line beside text (`details.service p::before`).
+- **Contact items**: Wavy dividers above each item (`.contact-item::before`).
 - **Empty state**: Rough scratched border (`.empty::before`).
 - **Cookies dialog**: Rough scratched border (`.cookies::before`).
 
 ### "feel" Word Animations (REMOVED)
 - **Status**: Completely removed during project cleanup (2026-11-19).
 - **What was removed**: The 4-effect sequencer (Shiver, Explode, Font Change, Typewriter), the `useFeelSequencer` hook, `FEEL_EFFECTS` config array, and all related CSS keyframes (~150 lines).
-- **Replaced by**: The "Across Mediums" typewriter animation on `h1 em` — a different concept that types out the emphasis text with synced DAW playhead.
+- **Replaced by**: None — all hero animations (typewriter, DAW playhead, TV glitch, Spider-Verse glitch) have been removed. Hero is clean with static pearl shimmer gradient only.
+
+### Mobile Menu (Hamburger Button)
+- **Location**: `root.tsx` — hamburger button inside `<nav>`, full-screen menu overlay outside `<header>` (to avoid CSS stacking context clipping).
+- **Trigger**: Hamburger icon (3 lines → X animation) visible only on mobile (`max-width: 760px`).
+- **Menu overlay**: Full-screen fixed overlay with solid black background (`#020203`), z-index 1000.
+- **Menu links**: 4 links (Work, Services, About, Contact/Let's talk) with staggered fade-in animation (0.15s–0.5s delays).
+- **Link styling**: Subtle pearl color by default (50% opacity), on hover/tap fill with stained glass gradient + wavy pen-loop underline.
+- **Underline style**: Wavy SVG pen stroke (quick pen loop style) with stained glass gradient colors on hover — same as the scribbly dividers.
+- **Tap feedback**: `scale(0.97)` + `brightness(1.3)` on `:active` state for immediate touch feedback.
+- **Auto-close**: Menu closes when a link is clicked.
+- **Design evolution**: Started as transparent dropdown (invisible) → cinema-style reveal with colored spotlights → solid black overlay with pearl links → Chinese ink brush hover style → wavy pen-loop underlines with stained glass gradient on hover.
+- **Key CSS fix**: Menu must be a sibling of `<header>` (not a child) for `position: fixed` to work correctly — header's `position: relative` creates a stacking context that clips fixed children.
 
 ### Page Layout Order (home.tsx)
 - **Current order**: Hero → Portfolio → Services → About → Contact → Newsletter
 - **Removed sections**: 
   - **Journal/Studio Notes** — completely removed (component, copy, navigation link, route import)
   - **Signal Demo** — audio tone button removed (component, copy, CSS)
-- **Portfolio**: Appears immediately after Hero. No "02 / LISTEN CLOSELY" label, no "Made to be heard." heading, no "HEADPHONES RECOMMENDED" sublabel.
+- **Portfolio**: Appears immediately after Hero, with a standalone wavy divider line (`.section-divider`) between Hero and Portfolio.
+- **Cinema lights effect**: Briefly added dark overlay with colored spotlights when scrolling to Portfolio — user couldn't see the changes, so the effect was dropped.
 - **Section spacing**: `padding: 60px 5%` (reduced from `105px 5%`) — sections sit closer together.
 - **No decorative dividers**: Shimmer lines between sections removed.
 
@@ -283,7 +296,10 @@ horizons-export/
 - Started with vibrant rainbow (ruby, amber, teal, cobalt, purple, magenta)
 - Explored stained glass mosaic effects (12-shard cathedral, 36-shard watercolor)
 - Tried deep sea cathedral palette, opaque pastels, uneven color splashes
-- **Final decision**: Soft pastel gradient (#c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa) applied consistently everywhere
+- Soft pastel gradient (#c9a0dc, #88aaff, #88ffaa, #ffcc88, #ff88aa) was the intermediate state
+- **Final decision**: Deep Stained Glass jewel tones (#1e50a8 cobalt, #a82040 ruby, #1a8a5a emerald, #c8a430 gold, #6a3090 amethyst) on near-pure black (#020203) background
+- Background darkened by "two coats" from #0a0a0c → #050507 → #020203 for maximum typography contrast
+- Black void splashes added for depth — like dark cathedral corners where light barely reaches
 
 ## Copy Management System (copy.ts)
 - **File**: `apps/web/src/copy.ts` — **ALL website text is centralized here.**
@@ -309,13 +325,14 @@ horizons-export/
 - **Hostinger credentials**: IP `157.173.209.67`, SFTP port `65002`, FTP port `21`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
 - **Repository is now public**: https://github.com/mosaicosound/mosaico-sound-website (can check Actions logs directly)
 - **Domain**: `mosaicosound.com` (transferring, pending)
-- **Current aesthetic direction**: Scratch-off lottery ticket + Chinese ink brush strokes + pearl shimmer typography. User wants elegance with crafty imperfection.
-- **Typography**: Cormorant Garamond unified everywhere. User rejected Architects Daughter (too casual) in favor of elegant serif.
-- **Typewriter animation**: 12s cycle on "Across Mediums" — text reveals letter by letter with synced DAW playhead. This replaced the ripple-lake animation.
-- **Glow levels**: User prefers darker, more matte look with patches of pitch black. All glows are reduced (splashes at 0.08-0.25 opacity, minimal text shadows).
-- **DAW sketch**: Small, subtle, centered behind text — playhead synced to typewriter rhythm (ease-out, not sine wave).
+- **Current aesthetic direction**: Cathedral stained glass mosaic + hand-drawn sketch. Deep jewel tones on near-black background, Shadows Into Light font, wavy SVG pen-stroke dividers.
+- **Typography**: Shadows Into Light unified everywhere. User wanted scribbly feel — tried Amatic SC (too extreme), settled on Shadows Into Light for subtle sketchiness.
+- **Hero section**: Clean, compact, no animations. Pearl shimmer gradient on full headline. No typewriter, no cursor, no DAW canvas, no glitch effects.
+- **Glow levels**: User prefers darker, more matte look with patches of pitch black. Background is #020203 (near-pure black) with black void splashes for depth.
+- **Mobile menu**: Cinema-style full-screen reveal with hand-drawn wavy underlines. Must be outside `<header>` to avoid CSS stacking context clipping.
 - **User prefers minimal, concise UI** — removes labels, captions, and decorative elements that don't add value. Wants eye to go directly to the work.
 - **Project cleanup**: All template bloat removed. Only 5 npm packages. No shadcn, no Radix UI, no Framer Motion, no Three.js. Pure CSS animations.
+- **Copy editing**: `COPY EDITING GUIDE.md` created in project root for easy text management. All text lives in `apps/web/src/copy.ts`.
 - Website copy documents are saved at:
   - `Website Copy - Simple.txt`
   - `Website Copy - Edit This.html`
@@ -323,11 +340,11 @@ horizons-export/
 ## Quick Commands Reference
 ```powershell
 # Build the project
-cd "C:\dev\Mosaico\Source Material\Website AI Code\horizons-export\apps\web"
+cd "C:\dev\Mosaico\horizons-export\apps\web"
 npm run build
 
 # Commit and push changes
-cd "C:\dev\Mosaico\Source Material\Website AI Code\horizons-export"
+cd "C:\dev\Mosaico\horizons-export"
 git add .
 git commit -m "Your changes description"
 git push

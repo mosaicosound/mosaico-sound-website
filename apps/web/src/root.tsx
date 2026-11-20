@@ -10,6 +10,7 @@ import type { Route } from './+types/root';
 import stylesheet from '@/index.css?url';
 import { Footer, Cookies } from '@/components/home/studio';
 import { siteCopy } from '@/copy';
+import { useState } from 'react';
 
 export const links: Route.LinksFunction = () => [
 	{ rel: 'stylesheet', href: stylesheet, precedence: 'default' },
@@ -22,11 +23,12 @@ export const links: Route.LinksFunction = () => [
 	},
 	{
 		rel: 'stylesheet',
-		href: 'https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap',
+  href: 'https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;1,300&display=swap',
 	},
 ];
 
 export default function App() {
+	const [menuOpen, setMenuOpen] = useState(false);
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
@@ -45,8 +47,19 @@ export default function App() {
 							<a href="/#services">{siteCopy.header.nav.services}</a>
 							<a href="/#about">{siteCopy.header.nav.about}</a>
 							<a className="nav-contact" href="/#contact">{siteCopy.header.nav.contact}</a>
+							<button className="hamburger" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
+								<span /><span /><span />
+							</button>
 						</nav>
 					</header>
+					{menuOpen && (
+						<div className="mobile-menu">
+							<a href="/#work" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.work}</a>
+							<a href="/#services" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.services}</a>
+							<a href="/#about" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.about}</a>
+							<a href="/#contact" onClick={() => setMenuOpen(false)}>{siteCopy.header.nav.contact}</a>
+						</div>
+					)}
 					<Outlet />
 					<Footer />
 					<Cookies />

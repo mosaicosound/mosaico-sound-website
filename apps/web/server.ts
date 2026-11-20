@@ -66,7 +66,7 @@ if (isDevelopment) {
 	app.use(express.static(clientDirectory, { maxAge: '1h' }));
 
 	// Serve index.html for all routes (SPA fallback)
-	app.get('*', (req, res) => {
+	app.use((req, res) => {
 		res.sendFile(path.join(clientDirectory, 'index.html'));
 	});
 

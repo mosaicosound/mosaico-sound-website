@@ -1,172 +1,15 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ArrowUpRight, AudioLines, Mail, Phone } from 'lucide-react';
 import { useCookieBanner } from '@/hooks/use-cookie-banner';
 import { openCookiePreferences } from '@/lib/cookie-consent';
 import { siteCopy } from '@/copy';
 
-// DAW session sketch — hand-drawn audio track lanes in playback mode
-export function SonicScene() {
-	const host = useRef<HTMLDivElement>(null);
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-	const reducedMotion = useRef(false);
-
-	useEffect(() => {
-		const canvas = canvasRef.current;
-		if (!canvas) return;
-		const ctx = canvas.getContext('2d');
-		if (!ctx) return;
-
-		reducedMotion.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-		let frame: number;
-
-		const resize = () => {
-			const parent = canvas.parentElement;
-			if (parent) {
-				canvas.width = parent.clientWidth * window.devicePixelRatio;
-				canvas.height = parent.clientHeight * window.devicePixelRatio;
-				ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-			}
-		};
-		const observer = new ResizeObserver(resize);
-		observer.observe(canvas.parentElement!);
-		resize();
-
-		// Typewriter sync: match the 12s CSS typewriter animation — smooth ease-out progress
-		const typewriterCycle = (time: number) => {
-			const cycle = 12000;
-			const t = (time % cycle) / cycle;
-			// Smooth ease-out during typing (0-80%), hold (80-92%), reset (92-100%)
-			if (t < 0.80) {
-				const raw = t / 0.80;
-				// Ease-out curve: starts fast, slows down — matches CSS ease-out
-				return 1 - Math.pow(1 - raw, 3);
-			} else if (t < 0.92) {
-				return 1; // hold at end
-			} else {
-				return 0; // reset for next cycle
-			}
-		};
-
-		// Pastel palette matching the site
-		const pastelColors = [
-			{ r: 201, g: 160, b: 220 }, // purple
-			{ r: 136, g: 170, b: 255 }, // blue
-			{ r: 136, g: 255, b: 170 }, // green
-			{ r: 255, g: 204, b: 136 }, // amber
-			{ r: 255, g: 136, b: 170 }, // pink
-		];
-
-		// Seeded random for consistent waveforms
-		const seededRandom = (seed: number) => {
-			const x = Math.sin(seed) * 10000;
-			return x - Math.floor(x);
-		};
-
-		// DAW session sketch — ultra-subtle, consistent with scratch-off aesthetic
-		const drawDAWSketch = (ctx: CanvasRenderingContext2D, w: number, h: number, time: number, progress: number) => {
-			ctx.clearRect(0, 0, w, h);
-
-			const trackCount = 3;
-			const trackH = h / trackCount;
-			const padding = 30;
-
-			// Playhead follows typewriter progress — linear left-to-right
-			const playheadX = padding + progress * (w - padding * 2);
-			const headIntensity = progress;
-
-			// --- 3 subtle waveform tracks ---
-			for (let track = 0; track < trackCount; track++) {
-				const trackY = track * trackH;
-				const trackCenterY = trackY + trackH / 2;
-				const color = pastelColors[track % pastelColors.length];
-				const seed = track * 1000 + 42;
-
-				// Draw a single thin waveform line per track
-				const baseAlpha = 0.04 + headIntensity * 0.06;
-				ctx.strokeStyle = `rgba(${color.r},${color.g},${color.b},${baseAlpha})`;
-				ctx.lineWidth = 0.5;
-				ctx.beginPath();
-
-				for (let i = 0; i < w - padding * 2; i += 3) {
-					const x = padding + i;
-					const normalizedX = i / (w - padding * 2);
-
-					// Simple, organic waveform
-					const wave = Math.sin(normalizedX * Math.PI * (4 + track * 2) + seed * 0.01) * 0.3
-						+ Math.sin(normalizedX * Math.PI * (7 + track) + seed * 0.03) * 0.2
-						+ seededRandom(seed + i) * 0.15;
-
-					// Envelope — fade at edges
-					const envelope = Math.sin(normalizedX * Math.PI);
-					const amplitude = wave * envelope * (trackH * 0.3);
-
-					const y = trackCenterY + amplitude;
-					if (i === 0) ctx.moveTo(x, y);
-					else ctx.lineTo(x, y);
-				}
-				ctx.stroke();
-			}
-
-			// --- Playhead — thin line, subtle glow ---
-			if (headIntensity > 0.1) {
-				// Very subtle glow
-				const glowWidth = 40;
-				const gradient = ctx.createLinearGradient(
-					playheadX - glowWidth, 0,
-					playheadX, 0,
-					playheadX + glowWidth, 0
-				);
-				gradient.addColorStop(0, `rgba(255,255,255,0)`);
-				gradient.addColorStop(0.5, `rgba(255,255,255,${headIntensity * 0.04})`);
-				gradient.addColorStop(1, `rgba(255,255,255,0)`);
-				ctx.fillStyle = gradient;
-				ctx.fillRect(playheadX - glowWidth, 0, glowWidth * 2, h);
-
-				// Thin playhead line
-				ctx.strokeStyle = `rgba(255,255,255,${headIntensity * 0.25})`;
-				ctx.lineWidth = 0.5;
-				ctx.beginPath();
-				ctx.moveTo(playheadX, 0);
-				ctx.lineTo(playheadX, h);
-				ctx.stroke();
-			}
-		};
-
-		const draw = (t: number) => {
-			const w = canvas.width / window.devicePixelRatio;
-			const h = canvas.height / window.devicePixelRatio;
-			const progress = typewriterCycle(t);
-
-			if (!reducedMotion.current) {
-				drawDAWSketch(ctx, w, h, t, progress);
-			}
-
-			frame = requestAnimationFrame(draw);
-		};
-
-		frame = requestAnimationFrame(draw);
-
-		return () => {
-			cancelAnimationFrame(frame);
-			observer.disconnect();
-		};
-	}, []);
-
-	return (
-		<div className="sonic-scene" ref={host} aria-hidden="true">
-			<canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-		</div>
-	);
-}
-
 export function Hero() {
 	const c = siteCopy.hero;
 	return (
 		<section className="hero">
-			<SonicScene />
 			<div className="eyebrow">{c.eyebrow}</div>
-			<h1>{c.headline}<br/><em>{c.headlineEmphasis}</em></h1>
+			<h1>{c.headline}</h1>
 			<div className="hero-bottom">
 				<p>{c.subheading}</p>
 			</div>
@@ -200,6 +43,7 @@ export function Services() {
 export function Portfolio() {
 	const c = siteCopy.portfolio;
 	const [category, setCategory] = useState('All');
+
 	const filtered = c.projects.filter(p => category === 'All' || p.category === category);
 		return (
 			<section className="section" id="work">

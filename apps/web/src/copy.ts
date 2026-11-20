@@ -34,9 +34,8 @@ export const siteCopy = {
   //  HERO (main landing section)
   // ----------------------------------------------------------
   hero: {
-    eyebrow: 'INDEPENDENT SOUND PRACTICE ADVERTISING / FILM / GAMES',
-    headline: 'Sonic Artistry',          // plain text part
-    headlineEmphasis: 'Across Mediums',  // colored gradient part
+    eyebrow: '',
+    headline: 'Sonic Artistry Across Mediums',
     subheading: 'Precision in the edit. Emotion in the mix. Distinctive sound for stories, brands and worlds.',
   },
 
