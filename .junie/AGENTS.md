@@ -75,9 +75,9 @@
      with:
        server: 157.173.209.67
        username: u370713035
-       password: A@Cu%kb8!Qcg^@7MymCY
+       password: We7SfXY17TaThQxJrz1&
        local-dir: dist/apps/web/client/
-       server-dir: /public_html/
+       server-dir: /domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/
        protocol: ftp
        port: 21
    ```
@@ -98,7 +98,7 @@
 - **Server IP**: `157.173.209.67`
 - **Port**: `65002`
 - **Username**: `u370713035`
-- **Password**: `A@Cu%kb8!Qcg^@7MymCY`
+- **Password**: `We7SfXY17TaThQxJrz1&`
 - **Access type**: SFTP only (no shell — `/sbin/nologin`)
 
 ### Deployment Workflow (✅ FIXED — FTP Protocol Works)
@@ -322,7 +322,8 @@ horizons-export/
   4. `appleboy/scp-action@v0.1.7` — SCP blocked by `/sbin/nologin`.
   5. `SamKirkland/FTP-Deploy-Action@v4.4.0` with `protocol: sftp` — v4 dropped SFTP support.
 - **Solution**: FTP protocol (port 21) works because it only needs authentication and file transfer — no shell commands, no extraction, no SCP handshake.
-- **Hostinger credentials**: IP `157.173.209.67`, SFTP port `65002`, FTP port `21`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
+- **Hostinger credentials**: IP `157.173.209.67`, SFTP port `65002`, FTP port `21`, user `u370713035`, password `We7SfXY17TaThQxJrz1&`
+- **FTP server-dir path**: `/domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/` (not `/public_html/`)
 - **Repository is now public**: https://github.com/mosaicosound/mosaico-sound-website (can check Actions logs directly)
 - **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic direction**: Cathedral stained glass mosaic + hand-drawn sketch. Deep jewel tones on near-black background, Shadows Into Light font, wavy SVG pen-stroke dividers.

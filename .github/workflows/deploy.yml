@@ -28,9 +28,9 @@ jobs:
         with:
           server: 157.173.209.67
           username: u370713035
-          password: A@Cu%kb8!Qcg^@7MymCY
+          password: We7SfXY17TaThQxJrz1&
           local-dir: dist/apps/web/client/
-          server-dir: /public_html/
+          server-dir: /domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/
           protocol: ftp
           port: 21
           cleanup: true
