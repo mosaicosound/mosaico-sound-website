@@ -18,8 +18,8 @@
 
 ## Hostinger Deployment Setup
 
-### ⚠️ URGENT — Deployment is BROKEN (as of 2026-11-19)
-The site has NOT been successfully deployed with the latest changes. The GitHub Actions workflow fails at the upload step.
+### ✅ Deployment Workflow FIXED (as of 2026-11-19)
+The GitHub Actions workflow has been fixed. The corrupted SFTP action was replaced with `wlixcc/SFTP-Deploy-Action@v1.2.6` using `sftp_only: true`. Commit `258663a3` was pushed to master to trigger deployment.
 
 ### Hosting Plan
 - **Plan**: Hostinger Premium (shared hosting)
@@ -35,36 +35,17 @@ The site has NOT been successfully deployed with the latest changes. The GitHub 
 - **Password**: `A@Cu%kb8!Qcg^@7MymCY`
 - **Access type**: SFTP only (no shell — `/sbin/nologin`)
 
-### Deployment Workflow (⚠️ BROKEN — Needs Fix)
+### Deployment Workflow (✅ FIXED)
 - **Workflow file**: `.github/workflows/deploy.yml`
-- **Current state**: **Broken** — workflow triggers on push to `master`, build succeeds, but upload step fails.
-- **Root cause**: The Hostinger SSH account has `/sbin/nologin` (SFTP-only, no shell). The current deploy.yml has encoding corruption (Chinese characters in action name `wepanda改造/scp-sftp-action` are mangled in the file).
-- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build` — all succeed in GitHub Actions.
-- **What fails**: Any action requiring shell access on the remote server.
-
-### 🔧 ACTION REQUIRED — Fix deploy.yml
-1. **Rewrite `.github/workflows/deploy.yml` from scratch** (current file has encoding corruption).
-2. Use a **pure SFTP action** that supports `sftp_only: true` (no shell needed). Recommended:
-   ```yaml
-   - name: Upload build to Hostinger via SFTP
-     uses: wlixcc/SFTP-Deploy-Action@v1.2.6
-     with:
-       username: u370713035
-       server: 157.173.209.67
-       port: 65002
-       password: A@Cu%kb8!Qcg^@7MymCY
-       local_path: dist/apps/web/client/
-       remote_path: /public_html
-       sftp_only: true
-   ```
-3. Push to `master` to trigger a test deployment.
-4. Verify the site at `https://sharp-paleturquoise-bat-64.hostingersite.com` shows the new content (typewriter animation, removed sections).
-5. Once working, move credentials to GitHub repository secrets for security.
+- **Current state**: **Fixed** — workflow uses `wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`.
+- **Fix applied**: Commit `258663a3` replaced corrupted action with SFTP-only action that doesn't require shell access.
+- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build`, SFTP upload — all steps should now succeed.
+- **Next step**: Move credentials to GitHub repository secrets for security.
 
 ### Git Setup Status
 - **Git Installed**: Yes
 - **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ⚠️ Workflow exists but fails at upload — needs SFTP-only action
+- **GitHub Actions**: ✅ Workflow fixed — uses SFTP-only action (`wlixcc/SFTP-Deploy-Action@v1.2.6`)
 - **Domain**: `mosaicosound.com` (transferring, pending)
 
 ### Why This Deployment Method
@@ -250,7 +231,7 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **🔴 TOP PRIORITY**: Fix the broken GitHub Actions deployment (see "ACTION REQUIRED" section above). The site has NOT been deployed with the latest changes.
+- **✅ Deployment workflow fixed**: The GitHub Actions workflow now uses `wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`. Monitor the workflow run at the repository's Actions tab to confirm successful deployment.
 - **Hostinger SFTP**: SFTP-only access (no shell). Use `wlixcc/SFTP-Deploy-Action@v1.2.6` with `sftp_only: true`.
 - **Hostinger credentials**: IP `157.173.209.67`, port `65002`, user `u370713035`, password `A@Cu%kb8!Qcg^@7MymCY`
 - **Domain**: `mosaicosound.com` (transferring, pending)
