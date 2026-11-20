@@ -101,17 +101,46 @@
 - **Password**: `We7SfXY17TaThQxJrz1&`
 - **Access type**: SFTP only (no shell — `/sbin/nologin`)
 
-### Deployment Workflow (✅ FIXED — FTP Protocol Works)
-- **Workflow file**: `.github/workflows/deploy.yml`
-- **Current state**: **Fixed** — workflow uses FTP protocol via `SamKirkland/FTP-Deploy-Action@v4.3.5`.
-- **Solution**: FTP protocol (port 21) does not require shell access, unlike SFTP/SCP which are blocked by `/sbin/nologin`.
-- **Cleanup**: `cleanup: true` automatically removes old build assets, preventing file accumulation.
-- **What works**: Checkout, Node.js setup, `npm ci`, `npm run build`, FTP upload — all succeed.
+### Deployment Workflow (✅ WORKING — Manual PowerShell FTP)
+- **GitHub Actions**: Broken — `SamKirkland/FTP-Deploy-Action` fails with Hostinger FTP sub-account (`u370713035`). The action rejects the credentials even though they work with manual FTP clients. 10+ failed runs. Do NOT waste time trying to fix this.
+- **Working method**: Manual PowerShell FTP upload (proven working as of 2026-11-20).
+- **How to deploy**:
+  1. Build: `cd "C:\dev\Mosaico\horizons-export\apps/web" ; npm run build`
+  2. Upload via PowerShell FTP script (see below)
+  3. Clean stale assets from `assets/` folder on server
+- **FTP credentials**: Server `157.173.209.67`, port `21`, user `u370713035`, password in GitHub Secret `FTP_PASSWORD`
+- **FTP path**: `domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/`
+- **PowerShell FTP upload script**:
+  ```powershell
+  $localDir = "C:\dev\Mosaico\horizons-export\dist\apps\web\client"
+  $ftpServer = "157.173.209.67"
+  $username = "u370713035"
+  $password = "YOUR_PASSWORD"
+  $basePath = "ftp://$ftpServer/domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/"
+  $creds = New-Object System.Net.NetworkCredential($username, $password)
+  $files = Get-ChildItem -Path $localDir -File -Recurse
+  foreach ($file in $files) {
+    $relativePath = $file.FullName.Substring($localDir.Length + 1) -replace '\\','/'
+    $ftpUrl = "$basePath$relativePath"
+    $req = [System.Net.FtpWebRequest]::Create($ftpUrl)
+    $req.Credentials = $creds
+    $req.Method = [System.Net.WebRequestMethods+Ftp]::UploadFile
+    $req.UsePassive = $true
+    $req.ContentLength = $file.Length
+    $stream = $req.GetRequestStream()
+    $fileStream = $file.OpenRead()
+    $fileStream.CopyTo($stream)
+    $stream.Close()
+    $fileStream.Close()
+    $req.GetResponse() | Out-Null
+  }
+  ```
+- **Important**: After uploading, delete stale asset files (old hash names) from the server's `assets/` folder.
 
 ### Git Setup Status
 - **Git Installed**: Yes
 - **GitHub Repository**: ✅ `https://github.com/mosaicosound/mosaico-sound-website`
-- **GitHub Actions**: ✅ Workflow fixed — uses FTP protocol with automatic cleanup of old files
+- **GitHub Actions**: ❌ **BROKEN** — `SamKirkland/FTP-Deploy-Action` rejects Hostinger FTP sub-account credentials. 10+ failed runs. Do NOT try to fix this. Use manual PowerShell FTP instead (see Deployment Workflow section).
 - **Domain**: `mosaicosound.com` (transferring, pending)
 
 ### Why This Deployment Method
@@ -180,10 +209,10 @@ horizons-export/
   - **Ink splatter dots**: 7 tiny radial gradients (4-6% opacity) scattered across the surface.
 - Content elements (`.site-header`, `.hero`, `.section`, `.newsletter`, `footer`) sit above via `position: relative; z-index: 1;`
 
-### Typography — Shadows Into Light (Handwritten Sketch)
-- **Font choice**: **Shadows Into Light** (Google Fonts, free) — thin, delicate handwritten font, like a fine-tip pen on paper.
+### Typography — Raleway Light (Elegant Sans-Serif)
+- **Font choice**: **Raleway** (Google Fonts, free, weight 300 Light) — elegant, refined sans-serif with thin strokes.
 - **Applied to**: EVERYTHING on the site — all headings (h1, h2, h3), body text, `.brand`, navigation, buttons, section labels, `.mono` text, service numbers, portfolio categories, contact info, form labels and inputs, newsletter, footer, cookies dialog, mobile menu links.
-- **CSS variable**: `--font-sketch: 'Shadows Into Light', cursive`
+- **CSS variable**: `--font-sketch: 'Raleway', sans-serif`
 - **Font loaded via**: `root.tsx` Google Fonts link in `<head>` (not via @import in CSS, which doesn't work with Vite).
 - **Key styling**:
   - `h1`: `clamp(52px, 7.5vw, 110px)`, weight 400, italic, letter-spacing 0.02em, max-width 900px.
@@ -192,7 +221,7 @@ horizons-export/
   - `.brand`: 30px, weight 400.
   - Body paragraphs: weight 400, line-height 1.8-1.9.
   - Labels/captions: 13-16px, weight 400, no uppercase transform.
-- **Design evolution**: Started with Cormorant Garamond (elegant serif) → user wanted scribbly feel → tried Amatic SC (too extreme) → rolled back → settled on Shadows Into Light for subtle sketchiness. Cormorant Garamond, Architects Daughter, and Inter fonts were removed.
+- **Design evolution**: Cormorant Garamond → Amatic SC → Shadows Into Light → Patrick Hand → Playfair Display → Jost → Sofia Sans Pro → **Raleway Light** (current, as of 2026-11-20). User wanted more elegance without being too polished.
 
 ### Hero Section — "Sonic Artistry Across Mediums"
 - **Headline**: `Sonic Artistry Across Mediums` (single line, no `<em>` split)
@@ -313,8 +342,8 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **✅ DEPLOYMENT FIXED**: GitHub Actions now uses FTP protocol with `SamKirkland/FTP-Deploy-Action@v4.3.5`. The `cleanup: true` setting automatically removes old build files.
-- **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). This blocks SCP, SSH commands, and automated SFTP actions. **FTP on port 21 works** — it's a simpler protocol that doesn't require shell access.
+- **✅ DEPLOYMENT**: Manual PowerShell FTP upload works. GitHub Actions is broken — do NOT waste time on it. See Deployment Workflow section for the working PowerShell script.
+- **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). This blocks SCP, SSH commands, and automated SFTP actions. **FTP on port 21 works with PowerShell** but NOT with GitHub Actions.
 - **Actions that FAILED (5 total, all SFTP/SCP-based)**:
   1. `wepanda改造/scp-sftp-action@v1.3.0` — File encoding corruption.
   2. `wlixcc/SFTP-Deploy-Action@v1.2.6` — Unzip/extract error (requires shell).
@@ -326,8 +355,8 @@ horizons-export/
 - **FTP server-dir path**: `/domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/` (not `/public_html/`)
 - **Repository is now public**: https://github.com/mosaicosound/mosaico-sound-website (can check Actions logs directly)
 - **Domain**: `mosaicosound.com` (transferring, pending)
-- **Current aesthetic direction**: Cathedral stained glass mosaic + hand-drawn sketch. Deep jewel tones on near-black background, Shadows Into Light font, wavy SVG pen-stroke dividers.
-- **Typography**: Shadows Into Light unified everywhere. User wanted scribbly feel — tried Amatic SC (too extreme), settled on Shadows Into Light for subtle sketchiness.
+- **Current aesthetic direction**: Cathedral stained glass mosaic + hand-drawn sketch. Deep jewel tones on near-black background, Raleway Light font, wavy SVG pen-stroke dividers.
+- **Typography**: Raleway Light (weight 300) unified everywhere. Font journey: Cormorant Garamond → Amatic SC → Shadows Into Light → Patrick Hand → Playfair Display → Jost → Sofia Sans Pro → Raleway Light (current). User wanted elegance without being too polished.
 - **Hero section**: Clean, compact, no animations. Pearl shimmer gradient on full headline. No typewriter, no cursor, no DAW canvas, no glitch effects.
 - **Glow levels**: User prefers darker, more matte look with patches of pitch black. Background is #020203 (near-pure black) with black void splashes for depth.
 - **Mobile menu**: Cinema-style full-screen reveal with hand-drawn wavy underlines. Must be outside `<header>` to avoid CSS stacking context clipping.
