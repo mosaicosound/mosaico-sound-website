@@ -24,9 +24,7 @@ export const siteCopy = {
     brand: 'mosaico sound',
     nav: {
       work: 'Work',
-      services: 'Services',
       about: 'About',
-      contact: "Let's talk ↗",
     },
   },
 
@@ -39,40 +37,16 @@ export const siteCopy = {
     subheading: 'Precision in the edit. Emotion in the mix. Distinctive sound for stories, brands and worlds.',
   },
 
-  // ----------------------------------------------------------
-  //  SERVICES (01 / THE PRACTICE)
-  // ----------------------------------------------------------
-  services: {
-    label: '01 / THE PRACTICE',
-    heading: 'Different mediums. One attentive ear.',
-    list: [
-      {
-        title: 'Dialogue editing',
-        body: 'Clear, natural voices. Thoughtful dialogue assembly, cleanup and restoration that keep the performance intact.',
-        tag: 'FILM / ADVERTISING',
-      },
-      {
-        title: 'Audio engineering',
-        body: 'Recording, editing and mixing with technical care. A cohesive sound from the first take to the final delivery.',
-        tag: 'RECORDING / POST-PRODUCTION',
-      },
-      {
-        title: 'Video game sound design',
-        body: 'Character, atmosphere and responsive sonic detail. Sound built to serve the player and bring a world to life.',
-        tag: 'INTERACTIVE / IMMERSIVE',
-      },
-    ],
-  },
 
   // ----------------------------------------------------------
   //  PORTFOLIO (02 / LISTEN CLOSELY)
   // ----------------------------------------------------------
   portfolio: {
-    categories: ['All', 'Advertising', 'Film', 'Games'],
+    categories: ['All', 'Advertising', 'Film', 'Games', 'Branding'],
     emptyState: {
       title: 'The listening room is taking shape.',
-      body: "Selected audio work will appear here.\nHave a project in mind? Let's talk about its sound.",
-      ctaButton: 'Start a conversation',
+      body: "Selected work will appear here.\nHave a project in mind? Say hello.",
+      ctaButton: 'Say hello',
     },
     // To add a project, copy one of these blocks and change the values:
     projects: [
@@ -101,45 +75,30 @@ export const siteCopy = {
   },
 
   // ----------------------------------------------------------
-  //  ABOUT (03 / BEHIND THE SOUND)
+  //  PARTNERS (clients and collaborators)
   // ----------------------------------------------------------
-  about: {
-    label: '03 / BEHIND THE SOUND',
-    heading: 'A technical mind. An artistic instinct.',
-    largeCopy: 'An independent sound artisan working at the intersection of storytelling, technology and listening.',
-    body: 'From the smallest breath in a dialogue edit to the atmosphere of an interactive world, the approach is the same: understand the intention, find the detail, and give every sound a purpose.',
-    ctaButton: "Let's make something resonate",
-  },
-
-
-  // ----------------------------------------------------------
-  //  CONTACT (05 / START A CONVERSATION)
-  // ----------------------------------------------------------
-  contact: {
-    label: '05 / START A CONVERSATION',
-    heading: "Your next project. Let's hear it.",
-    subheading: "Tell me what you're making, where you are in the process, and what you need from the sound.",
-    sublabel: 'PROJECT ENQUIRIES / APPOINTMENT REQUESTS',
-    note: 'Appointments are confirmed personally after your request. Project scope and payment arrangements are agreed before work begins.',
-    email: {
-      label: 'Email',
-      address: 'hello@mosaicosound.com',
-    },
-    phone: {
-      label: 'Phone',
-      number: '+1 (234) 567-890',
-    },
+  partners: {
+    heading: 'A few of the voices behind the work.',
+    logos: [
+      'Client One',
+      'Client Two',
+      'Client Three',
+      'Client Four',
+      'Client Five',
+      'Client Six',
+    ],
   },
 
   // ----------------------------------------------------------
-  //  NEWSLETTER
+  //  HELLO (closing call-to-action, replaces Contact)
   // ----------------------------------------------------------
-  newsletter: {
-    heading: 'Stay in the loop.',
-    subheading: 'Occasional studio notes. New work. No noise.',
-    info: 'For updates, follow on social media or contact directly:',
-    email: 'hello@mosaicosound.com',
+  hello: {
+    heading: "Let's make something beautiful.",
+    subheading: 'Have a project in mind? I\'d love to hear about it.',
+    emailLink: 'hello@mosaicosound.com',
+    emailLabel: 'Get in touch',
   },
+
 
   // ----------------------------------------------------------
   //  FOOTER
@@ -149,6 +108,7 @@ export const siteCopy = {
     tagline: 'INDEPENDENT SOUND. INTENTIONAL IMPACT.',
     cookieButton: 'Cookie settings',
     copyright: '© 2026 MOSAICO SOUND',
+    email: 'hello@mosaicosound.com',
   },
 
   // ----------------------------------------------------------
