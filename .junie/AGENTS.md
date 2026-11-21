@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **Project Name**: MOSAICO SOUND (independent sound practice for advertising, film, and games)
-- **Project Root**: `C:\dev\Mosaico\horizons-export`
+- **Project Root**: `C:\dev\websites-megaproject\mosaico-sound-website`
 - **Web App Directory**: `apps/web/`
 - **Live URL**: `https://sharp-paleturquoise-bat-64.hostingersite.com` (Hostinger demo/staging domain) — **DEPLOYED as of 2026-11-20 13:00**
 - **Current build assets**: `manifest-8c4ad5a6.js`, `root-CxgDppCz.js`, `studio-771FVK48.js`, `home-CS1IiD7j.js`, `index-C7dtQ08B.css`, `entry.client-BeDUZwfJ.js`, `jsx-runtime-CvX5G2ys.js`
@@ -23,17 +23,17 @@
 - **GitHub Actions**: ❌ **BROKEN** — `SamKirkland/FTP-Deploy-Action` rejects Hostinger FTP sub-account credentials. 10+ failed runs. Do NOT try to fix this.
 - **Working method**: Manual PowerShell FTP upload (proven working as of 2026-11-20).
 - **How to deploy**:
-  1. Build: `cd "C:\dev\Mosaico\horizons-export" ; npm run build`
+  1. Build: `cd "C:\dev\websites-megaproject\mosaico-sound-website" ; npm run build`
   2. Upload via PowerShell FTP script (see below)
   3. Clean stale assets from `assets/` folder on server
-- **FTP credentials**: Server `157.173.209.67`, port `21`, user `u370713035`, password `REDACTED`
+- **FTP credentials**: See `.junie/secrets.env` (server `157.173.209.67`, port `21`, user `u370713035`)
 - **FTP path**: `domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/`
 - **PowerShell FTP upload script**:
   ```powershell
-  $localDir = "C:\dev\Mosaico\horizons-export\dist\apps\web\client"
+  $localDir = "C:\dev\websites-megaproject\mosaico-sound-website\dist\apps\web\client"
   $ftpServer = "157.173.209.67"
   $username = "u370713035"
-  $password = "REDACTED"
+  $password = "<see .junie/secrets.env>"
   $basePath = "ftp://$ftpServer/domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/"
   $creds = New-Object System.Net.NetworkCredential($username, $password)
   $files = Get-ChildItem -Path $localDir -File -Recurse
@@ -66,7 +66,7 @@
 - **Server IP**: `157.173.209.67`
 - **Port**: `65002` (SFTP) / `21` (FTP)
 - **Username**: `u370713035`
-- **Password**: `REDACTED`
+- **Password**: See `.junie/secrets.env`
 - **Access type**: SFTP only (no shell — `/sbin/nologin`)
 
 ### Git Setup Status
@@ -77,7 +77,7 @@
 
 ## Project Structure
 ```
-horizons-export/
+mosaico-sound-website/
 ├── apps/
 │   └── web/                    # Main website application
 │       ├── src/               # Source code
@@ -197,37 +197,40 @@ horizons-export/
 
 ## Important Notes for Future Sessions
 - **DO NOT DELETE THIS FILE** — This AGENTS.md contains critical project context. Always preserve it.
+- **NEVER DELETE AGENTS.MD DURING CLEANUP** — When the user asks to clean up files, never delete `.junie/AGENTS.md`. Only remove unused code files, old backups, or stale server assets.
 - User has **Hostinger Premium plan** — does NOT want to spend extra money on services
-- **✅ DEPLOYMENT**: Manual PowerShell FTP upload works. GitHub Actions is broken — do NOT waste time on it.
+- **✅ DEPLOYMENT**: Manual PowerShell FTP upload works (proven successfully multiple times as of 2026-11-20). GitHub Actions is broken — do NOT waste time on it.
+- **Deployment history**: Previous Junie sessions have successfully deployed manually via PowerShell FTP. Cleaning stale assets after upload is critical — old hashed files remain on the server's `assets/` folder and must be deleted manually.
 - **Hostinger SFTP**: SFTP-only access (no shell — `/sbin/nologin`). FTP on port 21 works with PowerShell but NOT with GitHub Actions.
-- **Hostinger credentials**: IP `157.173.209.67`, FTP port `21`, user `u370713035`, password `REDACTED`
+- **Hostinger credentials**: See `.junie/secrets.env` (IP `157.173.209.67`, FTP port `21`, user `u370713035`)
 - **FTP server-dir path**: `/domains/sharp-paleturquoise-bat-64.hostingersite.com/public_html/` (not `/public_html/`)
 - **Repository is public**: https://github.com/mosaicosound/mosaico-sound-website
+- **Git status**: Local may be ahead of origin/master. Remote URL uses a Personal Access Token. Push cleanly when ready.
 - **Domain**: `mosaicosound.com` (transferring, pending)
 - **Current aesthetic**: Cathedral stained glass mosaic + hand-drawn sketch. Deep jewel tones, Raleway Light font, wavy SVG dividers.
 - **Light mode**: Default theme with toggle button. All effects preserved.
 - **Page flow**: AndSo-inspired — Hero → Work → Partners → Hello. Minimal nav (Work + About only).
 - **User prefers minimal, concise UI** — removes labels, captions, and decorative elements. Wants eye to go directly to the work.
 - **Project cleanup**: All template bloat removed. Only 5 npm packages. No shadcn, no Radix UI, no Framer Motion, no Three.js. Pure CSS animations.
-- **Backup folder**: `C:\dev\Mosaico\Backups\` — always create backups before major changes.
+- **Backup folder**: `C:\dev\websites-megaproject\Backups\` — always create backups before major changes.
 
 ## Quick Commands Reference
 ```powershell
 # Build the project
-cd "C:\dev\Mosaico\horizons-export"
+cd "C:\dev\websites-megaproject\mosaico-sound-website"
 npm run build
 
 # Run local preview server
-cd "C:\dev\Mosaico\horizons-export\apps\web"
+cd "C:\dev\websites-megaproject\mosaico-sound-website\apps\web"
 npm run dev
 
 # Commit and push changes
-cd "C:\dev\Mosaico\horizons-export"
+cd "C:\dev\websites-megaproject\mosaico-sound-website"
 git add .
 git commit -m "Your changes description" --trailer "Co-authored-by: Junie <junie@jetbrains.com>"
 git push
 
 # Create backup
 $timestamp = Get-Date -Format "yyyy-MM-dd-HH-mm"
-Compress-Archive -Path "C:\dev\Mosaico\horizons-export\*" -DestinationPath "C:\dev\Mosaico\Backups\mosaico-backup-$timestamp.zip" -Update
+Compress-Archive -Path "C:\dev\websites-megaproject\mosaico-sound-website\*" -DestinationPath "C:\dev\websites-megaproject\Backups\mosaico-backup-$timestamp.zip" -Update
 ```
